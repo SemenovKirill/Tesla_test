@@ -5,6 +5,9 @@ let terminalContainer = document.getElementById('terminal');
 let sendForm = document.getElementById('send-form');
 let inputField = document.getElementById('input');
 
+let tryme_button = document.getElementById('try_me');
+
+
 // Подключение к устройству при нажатии на кнопку Connect
 connectButton.addEventListener('click', function() {
   connect();
@@ -14,6 +17,13 @@ connectButton.addEventListener('click', function() {
 disconnectButton.addEventListener('click', function() {
   disconnect();
 });
+
+
+tryme_button.addEventListener('click', function() {
+  send('test');
+  //test_package();
+});
+
 
 // Обработка события отправки формы
 sendForm.addEventListener('submit', function(event) {
@@ -31,6 +41,12 @@ let characteristicCache = null;
 
 // Промежуточный буфер для входящих данных
 let readBuffer = '';
+
+
+function test_package() {
+  
+}
+
 
 // Запустить выбор Bluetooth устройства и подключиться к выбранному
 function connect() {
