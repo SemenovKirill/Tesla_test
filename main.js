@@ -303,3 +303,48 @@ bigConnectBtn.addEventListener("click", async () => {
 
 // После загрузки страницы
 window.addEventListener("load", updateConnectButton);
+
+
+/* ================================
+   Управление с клавиатуры (ПК)
+   ================================ */
+
+function handleKeyDown(event) {
+  const key = event.key.toLowerCase();
+
+  switch (key) {
+    case "arrowup":
+      send("up");
+      break;
+    case "arrowdown":
+      send("down");
+      break;
+    case "arrowleft":
+      send("left");
+      break;
+    case "arrowright":
+      send("right");
+      break;
+
+    case "a":
+      send("A");
+      break;
+    case "b":
+      send("B");
+      break;
+    case "c":
+      send("C");
+      break;
+    case "x":
+      send("X");
+      break;
+    case "y":
+      send("Y");
+      break;
+    case "z":
+      send("Z");
+      break;
+  }
+}
+
+window.addEventListener("keydown", handleKeyDown);
