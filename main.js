@@ -1,72 +1,11 @@
 // Получение ссылок на элементы UI
-
-let connectButton = document.getElementById('connect');
+let connectButton = document.getElementById('connect-btn');
 let disconnectButton = document.getElementById('disconnect');
-/*
 let terminalContainer = document.getElementById('terminal');
 let sendForm = document.getElementById('send-form');
 let inputField = document.getElementById('input');
 
 let tryme_button = document.getElementById('try_me');
-
-tryme_button.addEventListener('click', function() {
-  send('test');
-  //test_package();
-});
-
-*/
-
-
-let bluetoothDevice;
-let bluetoothCharacteristic;
-
-// Подключение
-document.getElementById("connect-btn").addEventListener("click", function() {
-
-    try {  connect();
-
-      
-      /*
-        bluetoothDevice = await navigator.bluetooth.requestDevice({
-            filters: [{ services: ["0000ffe0-0000-1000-8000-00805f9b34fb"] }]
-        });
-
-        const server = await bluetoothDevice.gatt.connect();
-        const service = await server.getPrimaryService("0000ffe0-0000-1000-8000-00805f9b34fb");
-        bluetoothCharacteristic = await service.getCharacteristic("0000ffe1-0000-1000-8000-00805f9b34fb");
-*/
-        alert("Bluetooth подключён!");
-    } catch (e) {
-        alert("Ошибка: " + e);
-    }
-});
-
-// Функция отправки команды
-function send(cmd) {
-    if (!bluetoothCharacteristic) return alert("Не подключено!");
-
-    const encoder = new TextEncoder();
-    bluetoothCharacteristic.writeValue(encoder.encode(cmd + "\n"));
-    console.log("SEND:", cmd);
-}
-
-// ---- Обработка нажатий кнопок ----
-
-// D-Pad
-document.querySelectorAll(".dpad-btn").forEach(btn => {
-    if (!btn.dataset.cmd) return;
-    btn.addEventListener("click", () => {
-        send(btn.dataset.cmd);
-    });
-});
-
-// A B C X Y Z
-document.querySelectorAll(".action-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-        send(btn.dataset.cmd);
-    });
-});
-
 
 
 // Подключение к устройству при нажатии на кнопку Connect
@@ -79,6 +18,11 @@ disconnectButton.addEventListener('click', function() {
   disconnect();
 });
 
+
+tryme_button.addEventListener('click', function() {
+  send('test');
+  //test_package();
+});
 
 
 // Обработка события отправки формы
@@ -271,3 +215,27 @@ function writeToCharacteristic(characteristic, data) {
 }
 
 
+
+/* ================================
+   Подключение D-Pad и Buttons
+   ================================ */
+
+// D-pad и кнопки действий должны иметь атрибут data-cmd="команда"
+// Например: <button class="dpad-btn" data-cmd="up">▲</button>
+
+function setupControlButtons() {
+  // Все элементы, содержащие data-cmd
+  const buttons = document.querySelectorAll("[data-cmd]");
+
+  buttons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      const cmd = btn.dataset.cmd;
+      if (cmd) {
+        send(cmd);  // Используем существующую функцию send()
+      }
+    });
+  });
+}
+
+// Запускаем после загрузки страницы
+window.addEventListener("DOMContentLoaded", setupControlButtons);
