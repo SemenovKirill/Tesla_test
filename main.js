@@ -22,7 +22,11 @@ let bluetoothCharacteristic;
 
 // Подключение
 document.getElementById("connect-btn").addEventListener("click", async () => {
-    try {
+
+    try {  connect();
+
+      
+      /*
         bluetoothDevice = await navigator.bluetooth.requestDevice({
             filters: [{ services: ["0000ffe0-0000-1000-8000-00805f9b34fb"] }]
         });
@@ -30,7 +34,7 @@ document.getElementById("connect-btn").addEventListener("click", async () => {
         const server = await bluetoothDevice.gatt.connect();
         const service = await server.getPrimaryService("0000ffe0-0000-1000-8000-00805f9b34fb");
         bluetoothCharacteristic = await service.getCharacteristic("0000ffe1-0000-1000-8000-00805f9b34fb");
-
+*/
         alert("Bluetooth подключён!");
     } catch (e) {
         alert("Ошибка: " + e);
@@ -74,8 +78,6 @@ connectButton.addEventListener('click', function() {
 disconnectButton.addEventListener('click', function() {
   disconnect();
 });
-
-
 
 
 
