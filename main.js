@@ -6,8 +6,11 @@ let sendForm = document.getElementById('send-form');
 let inputField = document.getElementById('input');
 
 let tryme_button = document.getElementById('try_me');
+let bigConnectBtn = document.getElementById("connect-btn");
 
 
+
+/*
 // Подключение к устройству при нажатии на кнопку Connect
 connectButton.addEventListener('click', function() {
   connect();
@@ -17,7 +20,7 @@ connectButton.addEventListener('click', function() {
 disconnectButton.addEventListener('click', function() {
   disconnect();
 });
-
+*/
 
 tryme_button.addEventListener('click', function() {
   send('test');
@@ -239,3 +242,45 @@ function setupControlButtons() {
 
 // Запускаем после загрузки страницы
 window.addEventListener("DOMContentLoaded", setupControlButtons);
+
+
+
+/* ================================
+   Кнопка "Подключение Bluetooth"
+   ================================ */
+
+function updateConnectButton() {
+  if (deviceCache && deviceCache.gatt.connected) {
+    bigConnectBtn.textContent = "Подключено";
+    bigConnectBtn.classList.add("connected");
+  } else {
+    bigConnectBtn.textContent = "Подключить Bluetooth";
+    bigConnectBtn.classList.remove("connected");
+  }
+}
+
+bigConnectBtn.addEventListener("click", async () => {
+
+  // Если нет подключения → подключаемся
+  if (!deviceCache || !deviceCache.gatt.connected) {
+    bigConnectBtn.textContent = "Подключение...";
+    try {
+      await connect();       // ← твоя существующая функция
+      updateConnectButton();
+    } catch (e) {
+      bigConnectBtn.textContent = "Ошибка";
+      setTimeout(updateConnectButton, 1500);
+    }
+    return;
+  }
+
+  // Если подключено → спрашиваем подтверждение
+  let confirmDisconnect = confirm("Отключиться от устройства?");
+  if (!confirmDisconnect) return;
+
+  disconnect();             // ← твоя существующая функция
+  updateConnectButton();
+});
+
+// Следим за автоматическими событиями
+document.addEventListener("DOMContentLoaded", updateConnectButton);
