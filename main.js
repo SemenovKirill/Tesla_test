@@ -21,7 +21,7 @@ let bluetoothDevice;
 let bluetoothCharacteristic;
 
 // Подключение
-document.getElementById("connect-btn").addEventListener("click", async () => {
+document.getElementById("connect-btn").addEventListener("click", function() {
 
     try {  connect();
 
