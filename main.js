@@ -22,19 +22,22 @@ disconnectButton.addEventListener('click', function() {
 });
 */
 
-tryme_button.addEventListener('click', function() {
-  send('test');
-  //test_package();
-});
+if (tryme_button) {
+  tryme_button.addEventListener('click', function() {
+    send('test');
+  });
+}
 
 
 // Обработка события отправки формы
-sendForm.addEventListener('submit', function(event) {
-  event.preventDefault(); // Предотвратить отправку формы
-  send(inputField.value); // Отправить содержимое текстового поля
-  inputField.value = '';  // Обнулить текстовое поле
-  inputField.focus();     // Вернуть фокус на текстовое поле
-});
+if (sendForm && inputField) {
+  sendForm.addEventListener('submit', function(event) {
+    event.preventDefault(); // Предотвратить отправку формы
+    send(inputField.value); // Отправить содержимое текстового поля
+    inputField.value = '';  // Обнулить текстовое поле
+    inputField.focus();     // Вернуть фокус на текстовое поле
+  });
+}
 
 // Кэш объекта выбранного устройства
 let deviceCache = null;
@@ -154,8 +157,11 @@ function receive(data) {
 
 // Вывод в терминал
 function log(data, type = '') {
-  terminalContainer.insertAdjacentHTML('beforeend',
-      '<div' + (type ? ' class="' + type + '"' : '') + '>' + data + '</div>');
+  if (!terminalContainer) return;
+  terminalContainer.insertAdjacentHTML(
+    'beforeend',
+    '<div' + (type ? ' class="' + type + '"' : '') + '>' + data + '</div>'
+  );
 }
 
 // Отключиться от подключенного устройства
@@ -243,47 +249,6 @@ function setupControlButtons() {
 // Запускаем после загрузки страницы
 window.addEventListener("DOMContentLoaded", setupControlButtons);
 
-
-
-/* ================================
-   Кнопка "Подключение Bluetooth"
-   ================================ 
-function updateConnectButton() {
-  if (deviceCache && deviceCache.gatt.connected) {
-    bigConnectBtn.textContent = "Подключено";
-    bigConnectBtn.classList.add("connected");
-  } else {
-    bigConnectBtn.textContent = "Подключить Bluetooth";
-    bigConnectBtn.classList.remove("connected");
-  }
-}
-
-bigConnectBtn.addEventListener("click", async () => {
-
-  // Если нет подключения → подключаемся
-  if (!deviceCache || !deviceCache.gatt.connected) {
-    bigConnectBtn.textContent = "Подключение...";
-    try {
-      await connect();       // ← твоя существующая функция
-      updateConnectButton();
-    } catch (e) {
-      bigConnectBtn.textContent = "Ошибка";
-      setTimeout(updateConnectButton, 1500);
-    }
-    return;
-  }
-
-  // Если подключено → спрашиваем подтверждение
-  let confirmDisconnect = confirm("Отключиться от устройства?");
-  if (!confirmDisconnect) return;
-
-  disconnect();             // ← твоя существующая функция
-  updateConnectButton();
-});
-
-// Следим за автоматическими событиями
-document.addEventListener("DOMContentLoaded", updateConnectButton);
-*/
 
 /* ================================
    Кнопка "Подключение Bluetooth"
