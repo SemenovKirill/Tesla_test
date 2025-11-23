@@ -1,5 +1,5 @@
 // Получение ссылок на элементы UI
-let connectButton = document.getElementById('connect-btn');
+let connectButton = document.getElementById('connect');
 let disconnectButton = document.getElementById('disconnect');
 let terminalContainer = document.getElementById('terminal');
 let sendForm = document.getElementById('send-form');
