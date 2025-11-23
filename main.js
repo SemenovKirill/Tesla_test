@@ -247,8 +247,7 @@ window.addEventListener("DOMContentLoaded", setupControlButtons);
 
 /* ================================
    Кнопка "Подключение Bluetooth"
-   ================================ */
-
+   ================================ 
 function updateConnectButton() {
   if (deviceCache && deviceCache.gatt.connected) {
     bigConnectBtn.textContent = "Подключено";
@@ -284,3 +283,58 @@ bigConnectBtn.addEventListener("click", async () => {
 
 // Следим за автоматическими событиями
 document.addEventListener("DOMContentLoaded", updateConnectButton);
+*/
+
+/* ================================
+   Кнопка "Подключение Bluetooth"
+   ================================ */
+
+function updateConnectButton() {
+  if (deviceCache && deviceCache.gatt && deviceCache.gatt.connected) {
+    bigConnectBtn.textContent = "Подключено";
+    bigConnectBtn.classList.add("connected");
+  } else {
+    bigConnectBtn.textContent = "Подключить Bluetooth";
+    bigConnectBtn.classList.remove("connected");
+  }
+}
+
+bigConnectBtn.addEventListener("click", async () => {
+
+  // 1 — нет устройства → запрашиваем устройство
+  if (!deviceCache) {
+    bigConnectBtn.textContent = "Поиск...";
+    try {
+      await connect();
+      updateConnectButton();
+    } catch (e) {
+      console.error(e);
+      updateConnectButton();
+    }
+    return;
+  }
+
+  // 2 — устройство есть, но НЕ подключено
+  if (!deviceCache.gatt.connected) {
+    bigConnectBtn.textContent = "Подключение...";
+    try {
+      await connectDeviceAndCacheCharacteristic(deviceCache);
+      await startNotifications(characteristicCache);
+      updateConnectButton();
+    } catch (e) {
+      console.error(e);
+      updateConnectButton();
+    }
+    return;
+  }
+
+  // 3 — подключено → спрашиваем подтверждение
+  const ok = confirm("Отключиться от устройства?");
+  if (!ok) return;
+
+  disconnect();
+  updateConnectButton();
+});
+
+// После загрузки страницы
+window.addEventListener("load", updateConnectButton);

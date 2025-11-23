@@ -4,5 +4,5 @@ toolbox.precache([
   'companion.js',
   'index.html',
   'main.js',
-  'styles.css',
+  'style.css',
 ]);
