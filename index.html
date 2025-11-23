@@ -1,3 +1,4 @@
+<!-- 
 <!DOCTYPE html>
 <html>
 <head>
@@ -33,5 +34,63 @@
 <script src="main.js"></script>
 <script src="companion.js" data-service-worker="sw.js"></script>
 
+</body>
+</html>
+-->
+
+
+
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robot Controller</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<button id="connect" type="button">Connect</button>
+
+<button id="disconnect" type="button">Disconnect</button>
+
+<div class="container">
+    <!-- Левая панель: D-pad -->
+    <div class="dpad">
+        <button class="dpad-btn up" data-cmd="up">▲</button>
+
+        <div class="middle-row">
+            <button class="dpad-btn left" data-cmd="left">◀</button>
+            <button class="dpad-btn center" disabled></button>
+            <button class="dpad-btn right" data-cmd="right">▶</button>
+        </div>
+
+        <button class="dpad-btn down" data-cmd="down">▼</button>
+    </div>
+
+    <!-- Правая панель: кнопки A B C X Y Z -->
+    <div class="actions">
+        <div class="row">
+            <button class="action-btn" data-cmd="A">A</button>
+            <button class="action-btn" data-cmd="B">B</button>
+            <button class="action-btn" data-cmd="C">C</button>
+        </div>
+
+        <div class="row">
+            <button class="action-btn" data-cmd="X">X</button>
+            <button class="action-btn" data-cmd="Y">Y</button>
+            <button class="action-btn" data-cmd="Z">Z</button>
+        </div>
+    </div>
+</div>
+
+<!-- Кнопка подключения к Bluetooth -->
+<div class="connect-panel">
+    <button id="connect-btn">Подключить Bluetooth</button>
+</div>
+
+<script src="script.js"></script>
 </body>
 </html>
