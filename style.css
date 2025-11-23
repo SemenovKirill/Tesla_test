@@ -99,7 +99,7 @@ body {
 .big-connect-btn.connected {
     background: #00aa44; /* зелёная */
 }
-
+/*
 .connect-panel {
     padding: 15px;
     text-align: center;
@@ -118,7 +118,7 @@ body {
 #connect-btn:active {
     background: #004ecc;
 }
-
+*/
 /* ---------- Адаптивность ---------- */
 
 @media (max-width: 600px) {
