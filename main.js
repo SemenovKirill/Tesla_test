@@ -7,6 +7,9 @@ let inputField = document.getElementById('input');
 
 let tryme_button = document.getElementById('try_me');
 let bigConnectBtn = document.getElementById("connect-btn");
+let speedSlider = document.getElementById("speed-slider");
+let speedValueDisplay = document.getElementById("speed-value");
+let currentSpeed = speedSlider ? Number(speedSlider.value) : 0;
 
 
 
@@ -47,12 +50,6 @@ let characteristicCache = null;
 
 // Промежуточный буфер для входящих данных
 let readBuffer = '';
-
-
-function test_package() {
-  
-}
-
 
 // Запустить выбор Bluetooth устройства и подключиться к выбранному
 function connect() {
@@ -348,3 +345,35 @@ function handleKeyDown(event) {
 }
 
 window.addEventListener("keydown", handleKeyDown);
+
+
+/* ================================
+   Ползунок скорости
+   ================================ */
+
+function updateSpeedUI(value) {
+  currentSpeed = value;
+  if (speedValueDisplay) {
+    speedValueDisplay.textContent = String(value);
+  }
+}
+
+function syncSliderHeight() {
+  if (!speedSlider) return;
+  const dpad = document.querySelector(".dpad");
+  if (!dpad) return;
+  speedSlider.style.height = `${dpad.offsetHeight}px`;
+}
+
+if (speedSlider) {
+  updateSpeedUI(Number(speedSlider.value));
+
+  speedSlider.addEventListener("input", (event) => {
+    const value = Number(event.target.value);
+    updateSpeedUI(value);
+  });
+
+  window.addEventListener("resize", syncSliderHeight);
+  window.addEventListener("load", syncSliderHeight);
+  window.addEventListener("DOMContentLoaded", syncSliderHeight);
+}

@@ -119,6 +119,74 @@ body {
     background: #004ecc;
 }
 */
+/* ---------- SPEED SLIDER ---------- */
+
+.speed-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin-left: 32px;
+    color: #eee;
+}
+
+.speed-panel label {
+    font-size: 14px;
+    letter-spacing: 0.5px;
+}
+
+#speed-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    writing-mode: bt-lr; /* vertical */
+    width: 14px;
+    background: transparent;
+}
+
+#speed-slider::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+    background: linear-gradient(180deg, #1e90ff 0%, #0f3057 100%);
+}
+
+#speed-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    background: #fff;
+    border-radius: 50%;
+    border: 2px solid #1e90ff;
+    margin-top: -4px;
+}
+
+#speed-slider::-moz-range-track {
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+    background: linear-gradient(180deg, #1e90ff 0%, #0f3057 100%);
+}
+
+#speed-slider::-moz-range-thumb {
+    width: 22px;
+    height: 22px;
+    background: #fff;
+    border-radius: 50%;
+    border: 2px solid #1e90ff;
+}
+
+.speed-value {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+@media (max-width: 900px) {
+    .speed-panel {
+        margin-left: 12px;
+    }
+}
+
 /* ---------- Адаптивность ---------- */
 
 @media (max-width: 600px) {
