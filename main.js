@@ -9,7 +9,7 @@ let tryme_button = document.getElementById('try_me');
 let bigConnectBtn = document.getElementById("connect-btn");
 let speedSlider = document.getElementById("speed-slider");
 let speedValueDisplay = document.getElementById("speed-value");
-let currentSpeed = speedSlider ? Number(speedSlider.value) : 0;
+let currentSpeed = speedSlider ? Number(speedSlider.value) || 0 : 0;
 
 
 
@@ -362,17 +362,25 @@ function syncSliderHeight() {
   if (!speedSlider) return;
   const dpad = document.querySelector(".dpad");
   if (!dpad) return;
-  speedSlider.style.height = `${dpad.offsetHeight}px`;
+  const height = dpad.offsetHeight;
+  if (!height) return;
+  speedSlider.style.height = `${height}px`;
+  const speedPanel = document.querySelector(".speed-panel");
+  if (speedPanel) {
+    speedPanel.style.height = `${height}px`;
+  }
 }
 
 if (speedSlider) {
-  updateSpeedUI(Number(speedSlider.value));
+  const initialValue = Number(speedSlider.value);
+  updateSpeedUI(Number.isFinite(initialValue) ? initialValue : 0);
 
   speedSlider.addEventListener("input", (event) => {
     const value = Number(event.target.value);
-    updateSpeedUI(value);
+    updateSpeedUI(Number.isFinite(value) ? value : 0);
   });
 
+  syncSliderHeight();
   window.addEventListener("resize", syncSliderHeight);
   window.addEventListener("load", syncSliderHeight);
   window.addEventListener("DOMContentLoaded", syncSliderHeight);
