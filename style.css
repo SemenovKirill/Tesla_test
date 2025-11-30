@@ -1,206 +1,774 @@
-body {
-    margin: 0;
-    font-family: sans-serif;
-    background: #111;
-    color: #eee;
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
+:root {
+    --tesla-purple-dark: #7d2082;
+    --tesla-purple: #7f2084;
+    --tesla-purple-light: #a14a96;
+    --tesla-pink: #c359b7;
+    --tesla-black: #1a1a18;
+
+    --panel-bg: #f7f7f7;
+    --card-bg: #ffffff;
 }
 
-/* Основная сетка */
-.container {
-    flex: 1;
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: "Open Sans", system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
+    color: var(--tesla-black);
+    background: #ffffff;
+}
+
+body {
     display: flex;
-    justify-content: space-evenly;
     align-items: center;
-    padding: 10px;
-    gap: 20px;
+    justify-content: center;
+}
+
+/* ----- Фон с цветными блоками ----- */
+
+.page {
+    position: relative;
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+    overflow: hidden;
+}
+
+.page-bg {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    width: 22vw;
+    max-width: 320px;
+    z-index: -1;
+    opacity: 0.95;
+}
+
+.page-bg--left {
+    left: 0;
+    background: var(--tesla-purple-dark);
+}
+
+.page-bg--right {
+    right: 0;
+    background: var(--tesla-pink);
+}
+
+/* ----- Обёртка приложения ----- */
+
+.app {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* ----- Заголовок ----- */
+
+.app-header {
+    margin-bottom: 16px;
+    text-align: left;
+}
+
+.app-title {
+    margin: 0 0 4px;
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+.app-subtitle {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 400;
+    opacity: 0.8;
+}
+
+/* ----- Главная панель ----- */
+
+.panel {
+    background: var(--panel-bg);
+    border-radius: 20px;
+    padding: 18px 20px 14px;
+    box-shadow:
+        0 12px 30px rgba(0, 0, 0, 0.18),
+        0 0 0 1px rgba(0, 0, 0, 0.04);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Общий стиль секций */
+
+.panel-section {
+    background: var(--card-bg);
+    border-radius: 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    overflow: hidden;
+}
+
+.section-header {
+    background: var(--tesla-purple-dark);
+    color: #ffffff;
+    padding: 8px 14px;
+}
+
+.section-title {
+    margin: 0;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    font-weight: 600;
+}
+
+.section-body {
+    padding: 12px 14px 14px;
+}
+
+/* ----- Грид с тремя блоками ----- */
+
+.panel-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    align-items: start;
+}
+
+.panel-footer {
+    margin-top: 2px;
+    font-size: 12px;
+    color: rgba(26, 26, 24, 0.7);
+}
+
+/* ----- Соединение ----- */
+
+.section-body--connection {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
     flex-wrap: wrap;
 }
 
-/* ---------- D-PAD ---------- */
+.connection-status {
+    padding: 8px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.connection-status--offline {
+    background: #ffffff;
+    color: rgba(26, 26, 24, 0.7);
+}
+
+.connection-status--online {
+    background: rgba(35, 180, 80, 0.12);
+    color: #1f7a3a;
+    border-color: rgba(35, 180, 80, 0.4);
+}
+
+/* Кнопка подключения */
+
+.connect-btn {
+    padding: 10px 20px;
+    border-radius: 999px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    background: linear-gradient(
+        135deg,
+        var(--tesla-purple) 0%,
+        var(--tesla-pink) 100%
+    );
+    color: #ffffff;
+    cursor: pointer;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+    transition:
+        transform 0.08s ease,
+        box-shadow 0.08s ease,
+        filter 0.1s ease;
+}
+
+.connect-btn:hover {
+    filter: brightness(1.05);
+    transform: translateY(-1px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25);
+}
+
+.connect-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+}
+
+.connect-btn.connected {
+    background: linear-gradient(
+        135deg,
+        #2da95a 0%,
+        #51c27c 100%
+    );
+}
+
+/* ----- D-Pad (движение) ----- */
+
+.section-body--movement {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
 .dpad {
     display: flex;
     flex-direction: column;
     align-items: center;
+    gap: 6px;
+}
+
+.dpad-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.dpad-row--single {
+    width: 100%;
+    justify-content: center;
+}
+
+.dpad-row--middle {
+    width: 100%;
 }
 
 .dpad-btn {
-    width: 80px;
-    height: 80px;
-    margin: 6px;
-    border-radius: 15px;
-    border: none;
-    background: #333;
-    color: #fff;
-    font-size: 32px;
-    transition: 0.1s;
+    width: 72px;
+    height: 72px;
+    border-radius: 14px;
+    border: 1px solid rgba(26, 26, 24, 0.25);
+    background: #ffffff;
+    font-size: 28px;
+    color: var(--tesla-black);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow:
+        0 4px 9px rgba(0, 0, 0, 0.15),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.8);
+    cursor: pointer;
+    transition:
+        background 0.1s ease,
+        transform 0.08s ease,
+        box-shadow 0.08s ease,
+        border-color 0.1s ease;
+}
+
+.dpad-spacer {
+    width: 72px;
+    height: 72px;
+}
+
+.dpad-btn:hover {
+    border-color: var(--tesla-purple-light);
+    box-shadow:
+        0 6px 14px rgba(0, 0, 0, 0.18),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.9);
 }
 
 .dpad-btn:active {
-    background: #666;
+    transform: translateY(1px);
+    background: linear-gradient(
+        135deg,
+        var(--tesla-purple-light),
+        var(--tesla-purple)
+    );
+    color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
-.middle-row {
+.dpad-center {
+    width: 72px;
+    height: 72px;
+    border-radius: 14px;
+    border: 1px dashed rgba(26, 26, 24, 0.28);
+    background: #fafafa;
     display: flex;
+    flex-direction: column;
     align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: rgba(26, 26, 24, 0.8);
 }
 
-.center {
-    background: transparent;
+.dpad-center-label {
+    font-weight: 700;
 }
 
-/* ---------- ACTION BUTTONS ---------- */
+.dpad-center-sub {
+    font-weight: 400;
+    font-size: 9px;
+    opacity: 0.7;
+}
+
+/* ----- Команды (кнопки A B C X Y Z) ----- */
+
+.section-body--commands {
+    display: flex;
+    flex-direction: column;
+}
 
 .actions {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 10px;
 }
 
-.row {
+.actions-card {
+    background: #f9f5fb;
+    border-radius: 12px;
+    padding: 10px 11px;
+    border: 1px solid rgba(125, 32, 130, 0.15);
+}
+
+.actions-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-weight: 600;
+    opacity: 0.8;
+}
+
+.actions-buttons {
+    margin-top: 8px;
     display: flex;
-    gap: 20px;
+    gap: 10px;
 }
 
 .action-btn {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    border: none;
-    font-size: 26px;
-    background: #444;
-    color: white;
-    transition: 0.1s;
+    width: 60px;
+    height: 60px;
+    border-radius: 999px;
+    border: 2px solid var(--tesla-purple-dark);
+    background: #ffffff;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--tesla-purple-dark);
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.16);
+    transition:
+        background 0.1s ease,
+        color 0.1s ease,
+        transform 0.08s ease,
+        box-shadow 0.08s ease,
+        border-color 0.1s ease;
+}
+
+.action-btn:hover {
+    border-color: var(--tesla-purple-light);
+    transform: translateY(-1px);
+    box-shadow: 0 7px 16px rgba(0, 0, 0, 0.2);
 }
 
 .action-btn:active {
-    background: #777;
+    background: linear-gradient(
+        135deg,
+        var(--tesla-purple),
+        var(--tesla-pink)
+    );
+    color: #ffffff;
+    transform: translateY(1px);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.18);
 }
 
-/* ---------- CONNECT BUTTON ---------- */
+/* ----- Мощность / скорость ----- */
 
-
-.big-connect-btn {
-    width: 100%;
-    max-width: 320px;
-    padding: 15px;
-    font-size: 20px;
-    background: #0066ff;
-    color: white;
-    border: none;
-    border-radius: 12px;
-    margin: 20px auto;
-    display: block;
+.section-body--power {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
-
-.big-connect-btn.connected {
-    background: #00aa44; /* зелёная */
-}
-/*
-.connect-panel {
-    padding: 15px;
-    text-align: center;
-    background: #222;
-}
-
-#connect-btn {
-    padding: 15px 30px;
-    font-size: 18px;
-    border-radius: 10px;
-    border: none;
-    background: #2ba45a;
-    color: white;
-}
-
-#connect-btn:active {
-    background: #004ecc;
-}
-*/
-/* ---------- SPEED SLIDER ---------- */
 
 .speed-panel {
     display: flex;
     flex-direction: column;
+    justify-content: center;
     align-items: center;
     gap: 12px;
-    margin-left: 32px;
-    color: #eee;
-    justify-content: space-between;
+    width: 100%;
 }
 
-.speed-panel label {
-    font-size: 14px;
-    letter-spacing: 0.5px;
+.speed-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0;
 }
+
+.speed-scale {
+    position: absolute;
+    left: calc(50% + (var(--track-width) / 2) + 24px);
+    top: var(--track-inset);
+    bottom: var(--track-inset);
+    width: 64px;
+    pointer-events: none;
+}
+
+.speed-tick {
+    position: absolute;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    transform: translateY(-50%);
+    top: 0;
+}
+
+.speed-tick--long {
+    flex-direction: row-reverse;
+}
+
+.speed-tick-line {    
+    display: inline-block;
+    height: 1px;
+    width: 24px;
+    background: var(--tesla-black);
+}
+
+.speed-tick--short .speed-tick-line {
+    width: 12px;
+}
+
+.speed-tick-label {
+    font-size: 11px;
+    min-width: 24px;
+    text-align: left;
+    color: rgba(26, 26, 24, 0.8);
+}
+
+/* Обёртка вертикального слайдера */
+
+.speed-slider-wrap {
+    position: relative;
+    width: 160px;
+    height: 100%;
+    min-height: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    --track-width: 26px;
+    --track-inset: 0px;
+    overflow: visible;
+}
+
+/* Сам слайдер */
 
 #speed-slider {
     -webkit-appearance: slider-vertical;
     appearance: slider-vertical;
-    writing-mode: bt-lr; /* vertical bottom-to-top */
-    width: 32px;
-    height: 100%;
-    min-height: 200px;
+    writing-mode: bt-lr;
+    width: var(--track-width);
+    height: calc(100% - var(--track-inset) * 2);
     background: transparent;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: var(--track-inset);
+    z-index: 3;
+    margin: 0;
+    opacity: 0;
 }
 
+/* WebKit трек */
+
 #speed-slider::-webkit-slider-runnable-track {
+    -webkit-appearance: none;
     width: 100%;
     height: 100%;
-    border-radius: 10px;
-    background: linear-gradient(180deg, #1e90ff 0%, #0f3057 100%);
+    border-radius: 14px;
+    background: transparent;
+    border: none;
+    box-shadow: none;
 }
+
+/* WebKit thumb прячем, у нас своя визуализация */
 
 #speed-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 22px;
-    height: 22px;
-    background: #fff;
-    border-radius: 50%;
-    border: 2px solid #1e90ff;
-    margin-top: -4px;
+    width: 0;
+    height: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    margin: 0;
+    opacity: 0;
 }
+
+/* Firefox трек */
 
 #speed-slider::-moz-range-track {
     width: 100%;
     height: 100%;
-    border-radius: 10px;
-    background: linear-gradient(180deg, #1e90ff 0%, #0f3057 100%);
+    border-radius: 14px;
+    background: transparent;
+    border: none;
+    box-shadow: none;
 }
+
+/* Firefox thumb тоже прячем */
 
 #speed-slider::-moz-range-thumb {
-    width: 22px;
-    height: 22px;
-    background: #fff;
-    border-radius: 50%;
-    border: 2px solid #1e90ff;
+    width: 0;
+    height: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    opacity: 0;
 }
+
+/* Визуальный "поплавок" */
+
+.speed-thumb-visual {
+    position: absolute;
+    left: 50%;
+    width: 44px;
+    height: 14px;
+    background: #ffffff;
+    border-radius: 16px;
+    border: 2px solid var(--tesla-purple);
+    top: 0;
+    transform: translate(-50%, 0);
+    pointer-events: none;
+    z-index: 3;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.18);
+    transition: transform 0.04s linear;
+}
+
+.speed-track-visual {
+    position: absolute;
+    top: var(--track-inset);
+    bottom: var(--track-inset);
+    left: 50%;
+    width: var(--track-width);
+    transform: translateX(-50%);
+    border-radius: 12px;
+    background: linear-gradient(
+        180deg,
+        var(--tesla-pink) 0%,
+        var(--tesla-purple-dark) 100%
+    );
+    border: 2px solid var(--tesla-purple-dark);
+    box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, 0.65),
+        0 0 0 1px rgba(0, 0, 0, 0.08);
+    z-index: 1;
+}
+
+/* Блок отображения значения */
 
 .speed-value {
-    font-size: 16px;
-    font-weight: bold;
+    font-family: "Open Sans", monospace;
+    font-size: 18px;
+    font-weight: 700;
+    position: absolute;
+    left: calc(50% + 26px);
+    top: 0;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+    transform: translate(calc(-50% + 80px), 0);
+    pointer-events: none;
 }
+
+/* ----- Лог ----- */
+
+.log-line {
+    padding: 6px 10px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.86);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+}
+
+/* ----- Адаптивность ----- */
 
 @media (max-width: 900px) {
-    .speed-panel {
-        margin-left: 12px;
+    .panel-grid {
+        grid-template-columns: 1fr;
     }
 }
 
-/* ---------- Адаптивность ---------- */
+@media (max-width: 768px) {
+    .page {
+        padding: 16px;
+        align-items: stretch;
+    }
 
-@media (max-width: 600px) {
+    .panel-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .section-body {
+        padding: 10px 10px 12px;
+    }
+
     .dpad-btn,
-    .action-btn {
-        width: 60px;
-        height: 60px;
-        font-size: 24px;
+    .dpad-center,
+    .dpad-spacer {
+        width: 64px;
+        height: 64px;
     }
 
-    .row {
-        gap: 12px;
+    .action-btn {
+        width: 56px;
+        height: 56px;
     }
+
+    .speed-content {
+        gap: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .app-title {
+        font-size: 22px;
+    }
+
+    .connection-status {
+        width: 100%;
+        text-align: center;
+    }
+
+    .section-body--connection {
+        align-items: stretch;
+    }
+
+    .connect-btn {
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .speed-content {
+        justify-content: flex-start;
+    }
+}
+
+/* ----- Модалка логов ----- */
+
+.log-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    z-index: 1000;
+    backdrop-filter: blur(2px);
+}
+
+.log-modal-overlay.is-open {
+    display: flex;
+}
+
+.log-modal {
+    width: min(720px, 100%);
+    max-height: 80vh;
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow:
+        0 10px 28px rgba(0, 0, 0, 0.25),
+        0 0 0 1px rgba(0, 0, 0, 0.06);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.log-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    background: var(--panel-bg);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.log-modal-title {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.log-modal-close {
+    border: none;
+    background: transparent;
+    font-size: 16px;
+    cursor: pointer;
+    color: rgba(26, 26, 24, 0.7);
+    padding: 6px;
+    border-radius: 8px;
+    transition: background 0.12s ease;
+}
+
+.log-modal-close:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.log-modal-body {
+    padding: 10px 14px 14px;
+    overflow: auto;
+}
+
+.log-modal-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.log-modal-item {
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: #f8f8f8;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.log-modal-item-time {
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.5);
+    white-space: nowrap;
+}
+
+.log-modal-item-text {
+    flex: 1;
+    word-break: break-word;
 }

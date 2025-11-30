@@ -1,107 +1,248 @@
-<!-- 
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="styles.css" rel="stylesheet">
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-    <link rel="manifest" href="manifest.json">
-    <link rel="mask-icon" href="safari-pinned-tab.svg" color="#5bbad5">
-    <meta name="theme-color" content="#ffffff">
-</head>
-<body>
-
-<button id="connect" type="button">Connect</button>
-
-<button id="disconnect" type="button">Disconnect</button>
-
-
-<button id="try_me" type="button">Try me</button>
-
-
-
-
-<div id="terminal"></div>
-
-<form id="send-form">
-    <input id="input" type="text">
-    <button type="submit">Send</button>
-</form>
-
-<script src="main.js"></script>
-<script src="companion.js" data-service-worker="sw.js"></script>
-
-</body>
-</html>
--->
-
-
-
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Robot Controller</title>
+
+    <!-- Open Sans по брендбуку -->
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap"
+        rel="stylesheet"
+    >
+
     <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
+<div class="page">
+    <!-- Цветные фоновые блоки (колорблокинг) -->
+    <div class="page-bg page-bg--left"></div>
+    <div class="page-bg page-bg--right"></div>
 
-<button id="connect-btn" class="big-connect-btn">Подключить Bluetooth</button>
+    <main class="app">
+        <!-- Заголовок приложения -->
+        <header class="app-header">
+            <h1 class="app-title">Пульт управления роботом</h1>
+            <p class="app-subtitle">Tesla • учебный контроллер</p>
+        </header>
 
-<div class="container">
-    <!-- Левая панель: D-pad -->
-    <div class="dpad">
-        <button class="dpad-btn up" data-cmd="up">▲</button>
+        <!-- Главная панель -->
+        <section class="panel">
+            <!-- Блок соединения -->
+            <section class="panel-section panel-section--connection">
+                <div class="section-header">
+                    <h2 class="section-title">Соединение</h2>
+                </div>
+                <div class="section-body section-body--connection">
+                    <div
+                        class="connection-status connection-status--offline"
+                        id="connection-status"
+                    >
+                        НЕ ПОДКЛЮЧЕНО
+                    </div>
+                    <button
+                        id="connect-btn"
+                        class="connect-btn"
+                        type="button"
+                    >
+                        Подключить
+                    </button>
+                </div>
+            </section>
 
-        <div class="middle-row">
-            <button class="dpad-btn left" data-cmd="left">◀</button>
-            <button class="dpad-btn center" disabled></button>
-            <button class="dpad-btn right" data-cmd="right">▶</button>
+            <!-- Три основных блока: движение, команды, мощность -->
+            <div class="panel-grid">
+                <!-- Направление движения -->
+                <section class="panel-section panel-section--movement">
+                    <div class="section-header">
+                        <h2 class="section-title">Направление движения</h2>
+                    </div>
+                    <div class="section-body section-body--movement">
+                        <div class="dpad">
+                            <div class="dpad-row dpad-row--single">
+                                <button
+                                    class="dpad-btn dpad-btn--up"
+                                    data-cmd="up"
+                                >
+                                    ▲
+                                </button>
+                            </div>
+
+                            <div class="dpad-row dpad-row--middle">
+                                <button
+                                    class="dpad-btn dpad-btn--left"
+                                    data-cmd="left"
+                                >
+                                    ◀
+                                </button>
+                                <div class="dpad-spacer" aria-hidden="true"></div>
+                                <button
+                                    class="dpad-btn dpad-btn--right"
+                                    data-cmd="right"
+                                >
+                                    ▶
+                                </button>
+                            </div>
+
+                            <div class="dpad-row dpad-row--single">
+                                <button
+                                    class="dpad-btn dpad-btn--down"
+                                    data-cmd="down"
+                                >
+                                    ▼
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Команды A B C X Y Z -->
+                <section class="panel-section panel-section--commands">
+                    <div class="section-header">
+                        <h2 class="section-title">Команды</h2>
+                    </div>
+                    <div class="section-body section-body--commands">
+                        <div class="actions">
+                            <div class="actions-card">
+                                <div class="actions-label">Программа 1</div>
+                                <div class="actions-buttons">
+                                    <button
+                                        class="action-btn"
+                                        data-cmd="A"
+                                        type="button"
+                                    >
+                                        A
+                                    </button>
+                                    <button
+                                        class="action-btn"
+                                        data-cmd="B"
+                                        type="button"
+                                    >
+                                        B
+                                    </button>
+                                    <button
+                                        class="action-btn"
+                                        data-cmd="C"
+                                        type="button"
+                                    >
+                                        C
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="actions-card">
+                                <div class="actions-label">Программа 2</div>
+                                <div class="actions-buttons">
+                                    <button
+                                        class="action-btn"
+                                        data-cmd="X"
+                                        type="button"
+                                    >
+                                        X
+                                    </button>
+                                    <button
+                                        class="action-btn"
+                                        data-cmd="Y"
+                                        type="button"
+                                    >
+                                        Y
+                                    </button>
+                                    <button
+                                        class="action-btn"
+                                        data-cmd="Z"
+                                        type="button"
+                                    >
+                                        Z
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Мощность / скорость -->
+                <section class="panel-section panel-section--power">
+                    <div class="section-header">
+                        <h2 class="section-title">Мощность</h2>
+                    </div>
+                    <div class="section-body section-body--power">
+                        <div class="speed-panel">
+                            <div class="speed-content">
+                                <div class="speed-slider-wrap">
+                                    <div class="speed-scale" aria-hidden="true">
+                                    <div class="speed-tick speed-tick--long">
+                                        <span class="speed-tick-label">255</span>
+                                        <span class="speed-tick-line"></span>
+                                    </div>
+                                    <div class="speed-tick speed-tick--short">
+                                        <span class="speed-tick-line"></span>
+                                    </div>
+                                    <div class="speed-tick speed-tick--short">
+                                        <span class="speed-tick-line"></span>
+                                    </div>
+                                    <div class="speed-tick speed-tick--long">
+                                        <span class="speed-tick-label">128</span>
+                                        <span class="speed-tick-line"></span>
+                                    </div>
+                                    <div class="speed-tick speed-tick--short">
+                                        <span class="speed-tick-line"></span>
+                                    </div>
+                                    <div class="speed-tick speed-tick--short">
+                                        <span class="speed-tick-line"></span>
+                                    </div>
+                                    <div class="speed-tick speed-tick--long">
+                                        <span class="speed-tick-label">0</span>
+                                        <span class="speed-tick-line"></span>
+                                    </div>
+                                    </div>
+
+                                    <div class="speed-track-visual"></div>
+                                    <input
+                                        type="range"
+                                        id="speed-slider"
+                                        min="0"
+                                        max="255"
+                                        value="128"
+                                    />
+                                    <div class="speed-thumb-visual"></div>
+                                    <div
+                                        class="speed-value"
+                                        id="speed-value"
+                                    >
+                                        128
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Низ панели: лог последнего события -->
+            <footer class="panel-footer">
+                <div class="log-line" id="status-log">
+                    Лог: —
+                </div>
+            </footer>
+        </section>
+    </main>
+
+    <!-- Модалка истории логов -->
+    <div class="log-modal-overlay" id="log-modal">
+        <div class="log-modal">
+            <div class="log-modal-header">
+                <div class="log-modal-title">История лога</div>
+                <button class="log-modal-close" id="log-modal-close" type="button" aria-label="Закрыть лог">
+                    ✕
+                </button>
+            </div>
+            <div class="log-modal-body">
+                <div class="log-modal-list" id="log-modal-list"></div>
+            </div>
         </div>
-
-        <button class="dpad-btn down" data-cmd="down">▼</button>
-    </div>
-
-    <!-- Правая панель: кнопки A B C X Y Z -->
-    <div class="actions">
-        <div class="row">
-            <button class="action-btn" data-cmd="A">A</button>
-            <button class="action-btn" data-cmd="B">B</button>
-            <button class="action-btn" data-cmd="C">C</button>
-        </div>
-
-        <div class="row">
-            <button class="action-btn" data-cmd="X">X</button>
-            <button class="action-btn" data-cmd="Y">Y</button>
-            <button class="action-btn" data-cmd="Z">Z</button>
-        </div>
-    </div>
-
-    <!-- Ползунок регулировки скорости -->
-    <div class="speed-panel">
-        <label for="speed-slider">Скорость</label>
-        <input
-            type="range"
-            id="speed-slider"
-            min="0"
-            max="255"
-            value="128"
-        />
-        <div class="speed-value" id="speed-value">128</div>
     </div>
 </div>
-
-<!-- Кнопка подключения к Bluetooth 
-<div class="connect-panel">
-    <button id="connect-btn">Подключить Bluetooth</button>
-</div>
--->
 
 <script src="main.js"></script>
 <script src="companion.js" data-service-worker="sw.js"></script>

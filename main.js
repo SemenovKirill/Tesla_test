@@ -1,204 +1,230 @@
-// Получение ссылок на элементы UI
-let connectButton = document.getElementById('connect');
-let disconnectButton = document.getElementById('disconnect');
-let terminalContainer = document.getElementById('terminal');
-let sendForm = document.getElementById('send-form');
-let inputField = document.getElementById('input');
+// UI элементы из старой версии (если их нет в DOM, ничего страшного)
+let connectButton = document.getElementById("connect");
+let disconnectButton = document.getElementById("disconnect");
+let terminalContainer = document.getElementById("terminal");
+let sendForm = document.getElementById("send-form");
+let inputField = document.getElementById("input");
+let tryme_button = document.getElementById("try_me");
 
-let tryme_button = document.getElementById('try_me');
+// Новый основной UI
 let bigConnectBtn = document.getElementById("connect-btn");
+let connectionStatusBadge = document.getElementById("connection-status");
+let statusLogLine = document.getElementById("status-log");
+
 let speedSlider = document.getElementById("speed-slider");
 let speedValueDisplay = document.getElementById("speed-value");
 let currentSpeed = speedSlider ? Number(speedSlider.value) || 0 : 0;
+const speedThumb = document.querySelector(".speed-thumb-visual");
+const speedSliderWrap = document.querySelector(".speed-slider-wrap");
+const SLIDER_TRACK_INSET = 0;
+const SPEED_VALUE_OFFSET = -80;
+const logModal = document.getElementById("log-modal");
+const logModalClose = document.getElementById("log-modal-close");
+const logModalList = document.getElementById("log-modal-list");
+const logHistory = [];
 
+/* -----------------------------
+   Старые элементы (опционально)
+   ----------------------------- */
 
-
-/*
-// Подключение к устройству при нажатии на кнопку Connect
-connectButton.addEventListener('click', function() {
-  connect();
-});
-
-// Отключение от устройства при нажатии на кнопку Disconnect
-disconnectButton.addEventListener('click', function() {
-  disconnect();
-});
-*/
-
+// Примерная тестовая кнопка, если существует
 if (tryme_button) {
-  tryme_button.addEventListener('click', function() {
-    send('test');
+  tryme_button.addEventListener("click", function () {
+    send("test");
   });
 }
 
-
-// Обработка события отправки формы
+// Отправка формы, если такая есть
 if (sendForm && inputField) {
-  sendForm.addEventListener('submit', function(event) {
-    event.preventDefault(); // Предотвратить отправку формы
-    send(inputField.value); // Отправить содержимое текстового поля
-    inputField.value = '';  // Обнулить текстовое поле
-    inputField.focus();     // Вернуть фокус на текстовое поле
+  sendForm.addEventListener("submit", function (event) {
+    event.preventDefault();
+    send(inputField.value);
+    inputField.value = "";
+    inputField.focus();
   });
 }
 
-// Кэш объекта выбранного устройства
+/* -----------------------------
+   Bluetooth / GATT логика
+   ----------------------------- */
+
 let deviceCache = null;
-
-// Кэш объекта характеристики
 let characteristicCache = null;
+let readBuffer = "";
 
-// Промежуточный буфер для входящих данных
-let readBuffer = '';
-
-// Запустить выбор Bluetooth устройства и подключиться к выбранному
+// Подключение к устройству
 function connect() {
-  return (deviceCache ? Promise.resolve(deviceCache) :
-      requestBluetoothDevice()).
-      then(device => connectDeviceAndCacheCharacteristic(device)).
-      then(characteristic => startNotifications(characteristic)).
-      catch(error => log(error));
+  return (deviceCache ? Promise.resolve(deviceCache) : requestBluetoothDevice())
+    .then((device) => connectDeviceAndCacheCharacteristic(device))
+    .then((characteristic) => startNotifications(characteristic))
+    .catch((error) => log(error));
 }
 
-// Запрос выбора Bluetooth устройства
+// Запрос выбора устройства
 function requestBluetoothDevice() {
-  log('Requesting bluetooth device...');
+  log("Запуск выбора Bluetooth устройства...");
 
-  return navigator.bluetooth.requestDevice({
-    filters: [{services: [0xFFE0]}],
-  }).
-      then(device => {
-        log('"' + device.name + '" bluetooth device selected');
-        deviceCache = device;
-        deviceCache.addEventListener('gattserverdisconnected',
-            handleDisconnection);
-
-        return deviceCache;
-      });
+  return navigator.bluetooth
+    .requestDevice({
+      filters: [{ services: [0xFFE0] }],
+    })
+    .then((device) => {
+      log('Устройство выбрано: "' + device.name + '"');
+      deviceCache = device;
+      deviceCache.addEventListener(
+        "gattserverdisconnected",
+        handleDisconnection
+      );
+      return deviceCache;
+    });
 }
 
-// Обработчик разъединения
+// Обработчик разъединения (попытка переподключения)
 function handleDisconnection(event) {
   let device = event.target;
+  log(
+    '"' +
+      device.name +
+      '" отключено, попытка переподключения...'
+  );
 
-  log('"' + device.name +
-      '" bluetooth device disconnected, trying to reconnect...');
-
-  connectDeviceAndCacheCharacteristic(device).
-      then(characteristic => startNotifications(characteristic)).
-      catch(error => log(error));
+  connectDeviceAndCacheCharacteristic(device)
+    .then((characteristic) => startNotifications(characteristic))
+    .catch((error) => log(error));
 }
 
-// Подключение к определенному устройству, получение сервиса и характеристики
+// Подключение к GATT и получение характеристики
 function connectDeviceAndCacheCharacteristic(device) {
   if (device.gatt.connected && characteristicCache) {
     return Promise.resolve(characteristicCache);
   }
 
-  log('Connecting to GATT server...');
+  log("Подключение к GATT-серверу...");
 
-  return device.gatt.connect().
-      then(server => {
-        log('GATT server connected, getting service...');
-
-        return server.getPrimaryService(0xFFE0);
-      }).
-      then(service => {
-        log('Service found, getting characteristic...');
-
-        return service.getCharacteristic(0xFFE1);
-      }).
-      then(characteristic => {
-        log('Characteristic found');
-        characteristicCache = characteristic;
-
-        return characteristicCache;
-      });
+  return device.gatt
+    .connect()
+    .then((server) => {
+      log("GATT-сервер подключён, получаем сервис...");
+      return server.getPrimaryService(0xFFE0);
+    })
+    .then((service) => {
+      log("Сервис найден, получаем характеристику...");
+      return service.getCharacteristic(0xFFE1);
+    })
+    .then((characteristic) => {
+      log("Характеристика найдена, включаем уведомления...");
+      characteristicCache = characteristic;
+      return characteristicCache;
+    });
 }
 
-// Включение получения уведомлений об изменении характеристики
+// Включение уведомлений
 function startNotifications(characteristic) {
-  log('Starting notifications...');
+  log("Запуск уведомлений...");
 
-  return characteristic.startNotifications().
-      then(() => {
-        log('Notifications started');
-        characteristic.addEventListener('characteristicvaluechanged',
-            handleCharacteristicValueChanged);
-      });
+  return characteristic.startNotifications().then(() => {
+    log("Уведомления запущены");
+    characteristic.addEventListener(
+      "characteristicvaluechanged",
+      handleCharacteristicValueChanged
+    );
+  });
 }
 
-// Получение данных
+// Обработка входящих данных по строкам
 function handleCharacteristicValueChanged(event) {
   let value = new TextDecoder().decode(event.target.value);
 
   for (let c of value) {
-    if (c === '\n') {
+    if (c === "\n") {
       let data = readBuffer.trim();
-      readBuffer = '';
+      readBuffer = "";
 
       if (data) {
         receive(data);
       }
-    }
-    else {
+    } else {
       readBuffer += c;
     }
   }
 }
 
-// Обработка полученных данных
+// Получили строку от устройства
 function receive(data) {
-  log(data, 'in');
+  log(data, "in");
 }
 
-// Вывод в терминал
-function log(data, type = '') {
+// Лог: в #terminal (если есть) и кратко в #status-log
+function log(data, type = "") {
+  const text = String(data);
+  const time = new Date().toLocaleTimeString();
+  logHistory.push({ text, time });
+  if (logHistory.length > 200) {
+    logHistory.shift();
+  }
+
+  if (statusLogLine) {
+    statusLogLine.textContent = "Лог: " + text;
+  }
+
+  renderLogHistory();
+
   if (!terminalContainer) return;
+
   terminalContainer.insertAdjacentHTML(
-    'beforeend',
-    '<div' + (type ? ' class="' + type + '"' : '') + '>' + data + '</div>'
+    "beforeend",
+    '<div' + (type ? ' class="' + type + '"' : "") + ">" + text + "</div>"
   );
 }
 
-// Отключиться от подключенного устройства
+// Отключение
 function disconnect() {
   if (deviceCache) {
-    log('Disconnecting from "' + deviceCache.name + '" bluetooth device...');
-    deviceCache.removeEventListener('gattserverdisconnected',
-        handleDisconnection);
+    log('Отключаемся от "' + deviceCache.name + '"...');
+    deviceCache.removeEventListener(
+      "gattserverdisconnected",
+      handleDisconnection
+    );
 
     if (deviceCache.gatt.connected) {
       deviceCache.gatt.disconnect();
-      log('"' + deviceCache.name + '" bluetooth device disconnected');
-    }
-    else {
-      log('"' + deviceCache.name +
-          '" bluetooth device is already disconnected');
+      log('"' + deviceCache.name + '" отключено');
+    } else {
+      log(
+        '"' +
+          deviceCache.name +
+          '" уже было отключено'
+      );
     }
   }
 
   if (characteristicCache) {
-    characteristicCache.removeEventListener('characteristicvaluechanged',
-        handleCharacteristicValueChanged);
+    characteristicCache.removeEventListener(
+      "characteristicvaluechanged",
+      handleCharacteristicValueChanged
+    );
     characteristicCache = null;
   }
 
   deviceCache = null;
 }
 
-// Отправить данные подключенному устройству
-function send(data) {
+/* -----------------------------
+   Отправка данных
+   ----------------------------- */
+
+function send(data, options = {}) {
+  const { appendNewline = true } = options;
   data = String(data);
 
   if (!data || !characteristicCache) {
     return;
   }
 
-  data += '\n';
+  const payload = appendNewline ? data + "\n" : data;
 
-  if (data.length > 20) {
-    let chunks = data.match(/(.|[\r\n]){1,20}/g);
+  if (payload.length > 20) {
+    let chunks = payload.match(/(.|[\r\n]){1,20}/g);
 
     writeToCharacteristic(characteristicCache, chunks[0]);
 
@@ -207,120 +233,138 @@ function send(data) {
         writeToCharacteristic(characteristicCache, chunks[i]);
       }, i * 100);
     }
-  }
-  else {
-    writeToCharacteristic(characteristicCache, data);
+  } else {
+    writeToCharacteristic(characteristicCache, payload);
   }
 
-  log(data, 'out');
+  log(payload, "out");
 }
 
-// Записать значение в характеристику
 function writeToCharacteristic(characteristic, data) {
   characteristic.writeValue(new TextEncoder().encode(data));
 }
 
-
-
-/* ================================
-   Подключение D-Pad и Buttons
-   ================================ */
-
-// D-pad и кнопки действий должны иметь атрибут data-cmd="команда"
-// Например: <button class="dpad-btn" data-cmd="up">▲</button>
+/* -----------------------------
+   Привязка кнопок (data-cmd)
+   ----------------------------- */
 
 function setupControlButtons() {
-  // Все элементы, содержащие data-cmd
   const buttons = document.querySelectorAll("[data-cmd]");
 
-  buttons.forEach(btn => {
+  buttons.forEach((btn) => {
     btn.addEventListener("click", () => {
       const cmd = btn.dataset.cmd;
-      if (cmd) {
-        send(cmd);  // Используем существующую функцию send()
+      if (!cmd) return;
+
+      if (isDirection(cmd)) {
+        sendDrive(cmd);
+      } else {
+        send(cmd);
       }
     });
   });
 }
 
-// Запускаем после загрузки страницы
 window.addEventListener("DOMContentLoaded", setupControlButtons);
 
-
-/* ================================
+/* -----------------------------
    Кнопка "Подключение Bluetooth"
-   ================================ */
+   ----------------------------- */
 
 function updateConnectButton() {
-  if (deviceCache && deviceCache.gatt && deviceCache.gatt.connected) {
-    bigConnectBtn.textContent = "Подключено";
-    bigConnectBtn.classList.add("connected");
-  } else {
-    bigConnectBtn.textContent = "Подключить Bluetooth";
-    bigConnectBtn.classList.remove("connected");
+  const isConnected =
+    deviceCache && deviceCache.gatt && deviceCache.gatt.connected;
+
+  if (bigConnectBtn) {
+    if (isConnected) {
+      bigConnectBtn.textContent = "Отключить";
+      bigConnectBtn.classList.add("connected");
+    } else {
+      bigConnectBtn.textContent = "Подключить";
+      bigConnectBtn.classList.remove("connected");
+    }
+  }
+
+  if (connectionStatusBadge) {
+    if (isConnected) {
+      connectionStatusBadge.textContent = "ПОДКЛЮЧЕНО";
+      connectionStatusBadge.classList.add("connection-status--online");
+      connectionStatusBadge.classList.remove("connection-status--offline");
+    } else {
+      connectionStatusBadge.textContent = "НЕ ПОДКЛЮЧЕНО";
+      connectionStatusBadge.classList.add("connection-status--offline");
+      connectionStatusBadge.classList.remove("connection-status--online");
+    }
   }
 }
 
-bigConnectBtn.addEventListener("click", async () => {
+if (bigConnectBtn) {
+  bigConnectBtn.addEventListener("click", async () => {
+    // 1 — устройства нет → ищем
+    if (!deviceCache) {
+      bigConnectBtn.textContent = "Поиск...";
+      if (connectionStatusBadge) {
+        connectionStatusBadge.textContent = "ПОИСК...";
+      }
 
-  // 1 — нет устройства → запрашиваем устройство
-  if (!deviceCache) {
-    bigConnectBtn.textContent = "Поиск...";
-    try {
-      await connect();
-      updateConnectButton();
-    } catch (e) {
-      console.error(e);
-      updateConnectButton();
+      try {
+        await connect();
+      } catch (e) {
+        console.error(e);
+      } finally {
+        updateConnectButton();
+      }
+      return;
     }
-    return;
-  }
 
-  // 2 — устройство есть, но НЕ подключено
-  if (!deviceCache.gatt.connected) {
-    bigConnectBtn.textContent = "Подключение...";
-    try {
-      await connectDeviceAndCacheCharacteristic(deviceCache);
-      await startNotifications(characteristicCache);
-      updateConnectButton();
-    } catch (e) {
-      console.error(e);
-      updateConnectButton();
+    // 2 — устройство есть, но не подключено
+    if (!deviceCache.gatt.connected) {
+      bigConnectBtn.textContent = "Подключение...";
+      if (connectionStatusBadge) {
+        connectionStatusBadge.textContent = "ПОДКЛЮЧЕНИЕ...";
+      }
+
+      try {
+        await connectDeviceAndCacheCharacteristic(deviceCache);
+        await startNotifications(characteristicCache);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        updateConnectButton();
+      }
+      return;
     }
-    return;
-  }
 
-  // 3 — подключено → спрашиваем подтверждение
-  const ok = confirm("Отключиться от устройства?");
-  if (!ok) return;
+    // 3 — уже подключено → спрашиваем, отключать ли
+    const ok = confirm("Отключиться от устройства?");
+    if (!ok) return;
 
-  disconnect();
-  updateConnectButton();
-});
+    disconnect();
+    updateConnectButton();
+  });
 
-// После загрузки страницы
-window.addEventListener("load", updateConnectButton);
+  window.addEventListener("load", updateConnectButton);
+}
 
-
-/* ================================
+/* -----------------------------
    Управление с клавиатуры (ПК)
-   ================================ */
+   ----------------------------- */
 
 function handleKeyDown(event) {
   const key = event.key.toLowerCase();
 
   switch (key) {
     case "arrowup":
-      send("up");
+      sendDrive("up");
       break;
     case "arrowdown":
-      send("down");
+      sendDrive("down");
       break;
     case "arrowleft":
-      send("left");
+      sendDrive("left");
       break;
     case "arrowright":
-      send("right");
+      sendDrive("right");
       break;
 
     case "a":
@@ -346,29 +390,62 @@ function handleKeyDown(event) {
 
 window.addEventListener("keydown", handleKeyDown);
 
-
-/* ================================
+/* -----------------------------
    Ползунок скорости
-   ================================ */
+   ----------------------------- */
 
 function updateSpeedUI(value) {
   currentSpeed = value;
   if (speedValueDisplay) {
     speedValueDisplay.textContent = String(value);
   }
+  updateThumbPosition();
 }
 
 function syncSliderHeight() {
-  if (!speedSlider) return;
+  if (!speedSlider || !speedSliderWrap) return;
   const dpad = document.querySelector(".dpad");
-  if (!dpad) return;
-  const height = dpad.offsetHeight;
-  if (!height) return;
-  speedSlider.style.height = `${height}px`;
-  const speedPanel = document.querySelector(".speed-panel");
+  const referenceHeight = dpad ? dpad.offsetHeight : 0;
+  const sliderHeight = referenceHeight || 220;
+
+  speedSliderWrap.style.height = `${sliderHeight}px`;
+
+  const speedPanel = document.querySelector(".panel-section--power .speed-panel");
   if (speedPanel) {
-    speedPanel.style.height = `${height}px`;
+    speedPanel.style.minHeight = `${sliderHeight}px`;
   }
+
+  updateThumbPosition();
+  positionTicks();
+}
+
+function updateThumbPosition() {
+  if (!speedSlider || !speedThumb || !speedSliderWrap) return;
+
+  const min = Number(speedSlider.min) || 0;
+  const max = Number(speedSlider.max) || 100;
+  const val = Number(speedSlider.value) || 0;
+
+  // значение снизу вверх
+  const ratio = (max - val) / (max - min || 1);
+  const trackHeight =
+    speedSliderWrap.clientHeight || speedSlider.clientHeight || 0;
+  const thumbHeight = speedThumb.offsetHeight || 16;
+  const bubbleHeight = speedValueDisplay?.offsetHeight || 0;
+  const travel = Math.max(
+    trackHeight - thumbHeight - SLIDER_TRACK_INSET * 2,
+    0
+  );
+  const offset = SLIDER_TRACK_INSET + ratio * travel;
+
+  speedThumb.style.transform = `translate(-50%, ${offset}px)`;
+
+  if (speedValueDisplay) {
+    const bubbleOffset = offset + (thumbHeight - bubbleHeight) / 2;
+    speedValueDisplay.style.transform = `translate(calc(-50% + ${SPEED_VALUE_OFFSET}px), ${bubbleOffset}px)`;
+  }
+
+  positionTicks();
 }
 
 if (speedSlider) {
@@ -384,4 +461,117 @@ if (speedSlider) {
   window.addEventListener("resize", syncSliderHeight);
   window.addEventListener("load", syncSliderHeight);
   window.addEventListener("DOMContentLoaded", syncSliderHeight);
+}
+
+if (statusLogLine) {
+  statusLogLine.addEventListener("click", openLogModal);
+}
+
+if (logModalClose) {
+  logModalClose.addEventListener("click", closeLogModal);
+}
+
+if (logModal) {
+  logModal.addEventListener("click", (event) => {
+    if (event.target === logModal) {
+      closeLogModal();
+    }
+  });
+}
+
+function positionTicks() {
+  const scale = document.querySelector(".speed-scale");
+  if (!scale) return;
+  const ticks = scale.querySelectorAll(".speed-tick");
+  if (!ticks.length) return;
+
+  const scaleHeight = scale.clientHeight || 0;
+  const thumbHeight = speedThumb?.offsetHeight || 14;
+  const travel = Math.max(scaleHeight - thumbHeight, 0);
+  const step = travel / (ticks.length - 1 || 1);
+
+  ticks.forEach((tick, index) => {
+    const top = thumbHeight / 2 + step * index;
+    tick.style.top = `${top}px`;
+  });
+}
+
+function renderLogHistory() {
+  if (!logModalList) return;
+  logModalList.innerHTML = "";
+
+  logHistory
+    .slice()
+    .reverse()
+    .forEach((item) => {
+      const row = document.createElement("div");
+      row.className = "log-modal-item";
+
+      const time = document.createElement("div");
+      time.className = "log-modal-item-time";
+      time.textContent = item.time;
+
+      const text = document.createElement("div");
+      text.className = "log-modal-item-text";
+      text.textContent = item.text;
+
+      row.appendChild(text);
+      row.appendChild(time);
+      logModalList.appendChild(row);
+    });
+}
+
+function openLogModal() {
+  if (!logModal) return;
+  renderLogHistory();
+  logModal.classList.add("is-open");
+}
+
+function closeLogModal() {
+  if (!logModal) return;
+  logModal.classList.remove("is-open");
+}
+
+/* -----------------------------
+   Команды движения
+   ----------------------------- */
+
+function isDirection(cmd) {
+  return cmd === "up" || cmd === "down" || cmd === "left" || cmd === "right";
+}
+
+function buildDriveCommand(direction) {
+  const speed = Math.round(Number(currentSpeed) || 0);
+  let lSign = " ";
+  let rSign = " ";
+
+  switch (direction) {
+    case "up":
+      lSign = " ";
+      rSign = " ";
+      break;
+    case "down":
+      lSign = "-";
+      rSign = "-";
+      break;
+    case "left":
+      lSign = "-";
+      rSign = " ";
+      break;
+    case "right":
+      lSign = " ";
+      rSign = "-";
+      break;
+    default:
+      lSign = " ";
+      rSign = " ";
+  }
+
+  // Формат: L±speed R±speed\r
+  return `L${lSign}${speed}R${rSign}${speed}\r`;
+}
+
+function sendDrive(direction) {
+  const cmd = buildDriveCommand(direction);
+  send(cmd, { appendNewline: false });
 }
