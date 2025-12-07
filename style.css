@@ -8,6 +8,7 @@
     --panel-bg: #f7f7f7;
     --card-bg: #ffffff;
     --ui-scale: 1;
+    --space-scale: 1;
     --page-align: flex-start;
     --page-justify: center;
     --dpad-size: calc(72px * var(--ui-scale));
@@ -26,6 +27,14 @@
     --speed-tick-font: calc(11px * var(--ui-scale));
     --speed-tick-line-long: calc(24px * var(--ui-scale));
     --speed-tick-line-short: calc(12px * var(--ui-scale));
+    --section-title-size: calc(14px * var(--ui-scale));
+    --section-header-padding: calc(8px * var(--ui-scale));
+    --status-font: calc(12px * var(--ui-scale));
+    --status-padding-y: calc(8px * var(--ui-scale));
+    --status-padding-x: calc(12px * var(--ui-scale));
+    --connect-font: calc(14px * var(--ui-scale));
+    --connect-padding-y: calc(10px * var(--ui-scale));
+    --connect-padding-x: calc(20px * var(--ui-scale));
 }
 
 *,
@@ -101,38 +110,19 @@ body {
 
 /* ----- Заголовок ----- */
 
-.app-header {
-    margin-bottom: 16px;
-    text-align: left;
-}
-
-.app-title {
-    margin: 0 0 4px;
-    font-size: 26px;
-    font-weight: 700;
-    letter-spacing: 0.03em;
-    text-transform: uppercase;
-}
-
-.app-subtitle {
-    margin: 0;
-    font-size: 13px;
-    font-weight: 400;
-    opacity: 0.8;
-}
-
 /* ----- Главная панель ----- */
 
 .panel {
     background: var(--panel-bg);
     border-radius: 20px;
-    padding: 18px 20px 14px;
+    padding: calc(18px * var(--space-scale)) calc(20px * var(--space-scale))
+        calc(14px * var(--space-scale));
     box-shadow:
         0 12px 30px rgba(0, 0, 0, 0.18),
         0 0 0 1px rgba(0, 0, 0, 0.04);
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: calc(16px * var(--space-scale));
 }
 
 /* Общий стиль секций */
@@ -147,19 +137,21 @@ body {
 .section-header {
     background: var(--tesla-purple-dark);
     color: #ffffff;
-    padding: 8px 14px;
+    padding: calc(var(--section-header-padding) * var(--space-scale))
+        calc(14px * var(--space-scale));
 }
 
 .section-title {
     margin: 0;
-    font-size: 14px;
+    font-size: var(--section-title-size);
     text-transform: uppercase;
     letter-spacing: 0.09em;
     font-weight: 600;
 }
 
 .section-body {
-    padding: 12px 14px 14px;
+    padding: calc(12px * var(--space-scale)) calc(14px * var(--space-scale))
+        calc(14px * var(--space-scale));
 }
 
 /* ----- Грид с тремя блоками ----- */
@@ -167,7 +159,7 @@ body {
 .panel-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 14px;
+    gap: calc(14px * var(--space-scale));
     align-items: start;
 }
 
@@ -188,9 +180,9 @@ body {
 }
 
 .connection-status {
-    padding: 8px 12px;
+    padding: var(--status-padding-y) var(--status-padding-x);
     border-radius: 999px;
-    font-size: 12px;
+    font-size: var(--status-font);
     font-weight: 600;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -211,10 +203,10 @@ body {
 /* Кнопка подключения */
 
 .connect-btn {
-    padding: 10px 20px;
+    padding: var(--connect-padding-y) var(--connect-padding-x);
     border-radius: 999px;
     border: none;
-    font-size: 14px;
+    font-size: var(--connect-font);
     font-weight: 600;
     letter-spacing: 0.07em;
     text-transform: uppercase;
@@ -363,7 +355,7 @@ body {
 .actions {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px;
+    gap: calc(10px * var(--space-scale));
     align-items: start;
     justify-items: stretch;
 }

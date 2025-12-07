@@ -21,6 +21,8 @@ const SPEED_VALUE_OFFSET = -80;
 const APP_BASE_WIDTH = 1200;
 const APP_BASE_HEIGHT = 780;
 let appBaseHeight = null;
+let panelBaseHeight = null;
+let panelBaseWidth = null;
 const logModal = document.getElementById("log-modal");
 const logModalClose = document.getElementById("log-modal-close");
 const logModalList = document.getElementById("log-modal-list");
@@ -600,6 +602,8 @@ function updateLayoutMode() {
   const root = document.documentElement;
   const body = document.body;
   const appEl = document.querySelector(".app");
+  const pageEl = document.querySelector(".page");
+  const panelEl = document.querySelector(".panel");
   const mediaLandscape = window.matchMedia("(orientation: landscape)");
   const isLandscape =
     mediaLandscape.matches || window.innerWidth > window.innerHeight;
@@ -609,37 +613,67 @@ function updateLayoutMode() {
   if (appBaseHeight === null && appEl) {
     appBaseHeight = appEl.offsetHeight;
   }
+  if (panelBaseHeight === null && panelEl) {
+    panelBaseHeight = panelEl.offsetHeight;
+  }
+  if (panelBaseWidth === null && panelEl) {
+    panelBaseWidth = panelEl.offsetWidth;
+  }
+  const currentUiScale =
+    parseFloat(
+      getComputedStyle(document.documentElement).getPropertyValue("--ui-scale")
+    ) || 1;
+  const rect = panelEl
+    ? panelEl.getBoundingClientRect()
+    : appEl?.getBoundingClientRect() || null;
+  const baseWidth = rect
+    ? rect.width / currentUiScale
+    : panelBaseWidth || APP_BASE_WIDTH;
+  const baseHeight = rect
+    ? rect.height / currentUiScale
+    : panelBaseHeight || APP_BASE_HEIGHT || viewportHeight;
+
+  const pageStyles = pageEl ? getComputedStyle(pageEl) : null;
+  const paddingX =
+    (pageStyles
+      ? parseFloat(pageStyles.paddingLeft) + parseFloat(pageStyles.paddingRight)
+      : 0) || 0;
+  const paddingY =
+    (pageStyles
+      ? parseFloat(pageStyles.paddingTop) + parseFloat(pageStyles.paddingBottom)
+      : 0) || 0;
+
+  const availableWidth = Math.max(1, viewportWidth - paddingX);
+  const availableHeight = Math.max(1, viewportHeight - paddingY);
+
+  const widthRatio = availableWidth / baseWidth;
+  const heightRatio = availableHeight / baseHeight;
+  let spaceScale = 1;
+
+  if (widthRatio < 1 || heightRatio < 1) {
+    spaceScale = Math.max(0.7, Math.min(1, Math.min(widthRatio, heightRatio)));
+    const scaledWidth = baseWidth * spaceScale;
+    const scaledHeight = baseHeight * spaceScale;
+    const widthRatioAfter = availableWidth / scaledWidth;
+    const heightRatioAfter = availableHeight / scaledHeight;
+    const uiScaleCandidate = Math.min(widthRatioAfter, heightRatioAfter);
+    scale = Math.max(0.6, Math.min(1, uiScaleCandidate));
+  } else {
+    spaceScale = 1;
+    scale = 1;
+  }
 
   if (isLandscape) {
     body.classList.add("layout-landscape");
     body.classList.remove("layout-portrait");
-    if (appEl) {
-      const rect = appEl.getBoundingClientRect();
-      const baseHeight =
-        appBaseHeight || rect.height || APP_BASE_HEIGHT || viewportHeight;
-      scale = Math.min(
-        1,
-        viewportWidth / (rect.width || APP_BASE_WIDTH),
-        viewportHeight / baseHeight
-      );
-    }
     root.style.setProperty("--page-align", "center");
   } else {
     body.classList.add("layout-portrait");
     body.classList.remove("layout-landscape");
-    if (appEl) {
-      const rect = appEl.getBoundingClientRect();
-      const baseHeight =
-        appBaseHeight || rect.height || APP_BASE_HEIGHT || viewportHeight;
-      scale = Math.min(
-        1,
-        viewportWidth / (rect.width || APP_BASE_WIDTH),
-        viewportHeight / baseHeight
-      );
-    }
     root.style.setProperty("--page-align", "flex-start");
   }
 
+  root.style.setProperty("--space-scale", spaceScale.toFixed(3));
   root.style.setProperty("--ui-scale", scale.toFixed(3));
   root.style.setProperty("--page-justify", "center");
 
@@ -689,3 +723,104 @@ function sendDrive(direction) {
   const cmd = buildDriveCommand(direction);
   send(cmd, { appendNewline: false });
 }
+
+
+/* ================================
+   Адаптация верстки к размеру окна
+   ================================ */
+
+const layoutBaseSize = {
+  landscape: null,
+  portrait: null,
+};
+
+function getCurrentOrientation() {
+  return window.innerWidth >= window.innerHeight ? "landscape" : "portrait";
+}
+
+function measureBasePanelSize(orientation) {
+  const panel = document.querySelector(".panel");
+  if (!panel) return;
+
+  const root = document.documentElement;
+
+  // Запоминаем текущий масштаб
+  const prevUi = root.style.getPropertyValue("--ui-scale") || "";
+  const prevSpace = root.style.getPropertyValue("--space-scale") || "";
+
+  // Сбрасываем масштаб в 1, чтобы получить «натуральный» размер панели
+  root.style.setProperty("--ui-scale", "1");
+  root.style.setProperty("--space-scale", "1");
+
+  // Подогнать высоту слайдера под D-pad в базовом масштабе
+  if (typeof syncSliderHeight === "function") {
+    syncSliderHeight();
+  }
+
+  const rect = panel.getBoundingClientRect();
+  layoutBaseSize[orientation] = {
+    width: rect.width,
+    height: rect.height,
+  };
+
+  // Возвращаем старые значения (если были заданы инлайном)
+  if (prevUi) root.style.setProperty("--ui-scale", prevUi);
+  else root.style.removeProperty("--ui-scale");
+
+  if (prevSpace) root.style.setProperty("--space-scale", prevSpace);
+  else root.style.removeProperty("--space-scale");
+}
+
+function updateLayoutAndScale() {
+  const body = document.body;
+  const root = document.documentElement;
+  const panel = document.querySelector(".panel");
+  if (!panel) return;
+
+  const orientation = getCurrentOrientation();
+
+  // Включаем нужный класс ориентации
+  body.classList.toggle("layout-landscape", orientation === "landscape");
+  body.classList.toggle("layout-portrait", orientation === "portrait");
+
+  // При первом заходе для ориентации измеряем базовый размер
+  if (!layoutBaseSize[orientation]) {
+    measureBasePanelSize(orientation);
+  }
+
+  const base = layoutBaseSize[orientation];
+  if (!base || !base.width || !base.height) return;
+
+  const margin = 24; // минимальный отступ от краёв окна
+  const availWidth = window.innerWidth - margin * 2;
+  const availHeight = window.innerHeight - margin * 2;
+
+  const widthScale = availWidth / base.width;
+  const heightScale = availHeight / base.height;
+
+  // Общий масштаб: не больше 1 и так, чтобы панель гарантированно влезла
+  const scale = Math.min(widthScale, heightScale, 1);
+
+  root.style.setProperty("--ui-scale", String(scale));
+  root.style.setProperty("--space-scale", String(scale));
+
+  // Пересчитываем высоту слайдера под новый масштаб
+  if (typeof syncSliderHeight === "function") {
+    syncSliderHeight();
+  }
+
+  // Если панель ужата (<1), центрируем её по вертикали и горизонтали,
+  // иначе — прижимаем к верху, как было изначально
+  if (scale < 1) {
+    root.style.setProperty("--page-align", "center");
+    root.style.setProperty("--page-justify", "center");
+  } else {
+    root.style.setProperty("--page-align", "flex-start");
+    root.style.setProperty("--page-justify", "center");
+  }
+}
+
+// Запуск масштабирования
+window.addEventListener("load", updateLayoutAndScale);
+window.addEventListener("resize", updateLayoutAndScale);
+window.addEventListener("orientationchange", updateLayoutAndScale);
