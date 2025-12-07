@@ -19,6 +19,7 @@ const speedSliderWrap = document.querySelector(".speed-slider-wrap");
 const SLIDER_TRACK_INSET = 0;
 const SPEED_VALUE_OFFSET = -80;
 const APP_BASE_WIDTH = 1200;
+let appBaseHeight = null;
 const logModal = document.getElementById("log-modal");
 const logModalClose = document.getElementById("log-modal-close");
 const logModalList = document.getElementById("log-modal-list");
@@ -508,6 +509,25 @@ if (speedSliderWrap) {
     },
     { passive: false }
   );
+
+  const handleSliderTouch = (e) => {
+    if (!speedSlider) return;
+    e.preventDefault();
+    const touch = e.touches ? e.touches[0] : e;
+    if (!touch) return;
+    const rect = speedSlider.getBoundingClientRect();
+    const ratio = (touch.clientY - rect.top) / rect.height;
+    const min = Number(speedSlider.min) || 0;
+    const max = Number(speedSlider.max) || 255;
+    const clampedRatio = Math.min(1, Math.max(0, ratio));
+    const value = Math.round(max - clampedRatio * (max - min));
+    speedSlider.value = String(value);
+    updateSpeedUI(value);
+  };
+
+  ["touchstart", "touchmove"].forEach((evt) => {
+    speedSlider.addEventListener(evt, handleSliderTouch, { passive: false });
+  });
 }
 
 window.addEventListener("resize", updateLayoutMode);
@@ -578,16 +598,20 @@ function updateLayoutMode() {
   const viewportWidth = window.innerWidth || APP_BASE_WIDTH;
   const viewportHeight = window.innerHeight || 800;
   let scale = 1;
+  if (appBaseHeight === null && appEl) {
+    appBaseHeight = appEl.offsetHeight;
+  }
 
   if (isLandscape) {
     body.classList.add("layout-landscape");
     body.classList.remove("layout-portrait");
     if (appEl) {
       const rect = appEl.getBoundingClientRect();
+      const baseHeight = appBaseHeight || rect.height || viewportHeight;
       scale = Math.min(
         1,
         viewportWidth / (rect.width || APP_BASE_WIDTH),
-        viewportHeight / (rect.height || viewportHeight)
+        viewportHeight / baseHeight
       );
     }
     root.style.setProperty("--page-align", "center");

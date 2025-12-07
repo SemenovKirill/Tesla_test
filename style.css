@@ -8,7 +8,7 @@
     --panel-bg: #f7f7f7;
     --card-bg: #ffffff;
     --app-scale: 1;
-    --page-align: center;
+    --page-align: flex-start;
     --page-justify: center;
 }
 
@@ -27,6 +27,7 @@ body {
         "Segoe UI", sans-serif;
     color: var(--tesla-black);
     background: #ffffff;
+    overscroll-behavior: none;
 }
 
 body {
@@ -44,7 +45,7 @@ body {
     display: flex;
     justify-content: var(--page-justify);
     align-items: var(--page-align);
-    padding: 24px;
+    padding: 16px 18px;
     overflow: hidden;
 }
 
@@ -66,6 +67,12 @@ body {
 .page-bg--right {
     right: 0;
     background: var(--tesla-pink);
+}
+
+@media (max-width: 1200px) {
+    .page-bg {
+        display: none;
+    }
 }
 
 /* ----- Обёртка приложения ----- */
@@ -344,9 +351,11 @@ body {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
     align-items: start;
+    justify-items: stretch;
 }
 
 .actions-card {
+    width: 100%;
     background: #f9f5fb;
     border-radius: 12px;
     padding: 10px 11px;
@@ -366,6 +375,7 @@ body {
     display: flex;
     gap: 8px;
     flex-direction: column;
+    align-items: center;
 }
 
 .action-btn {
@@ -634,8 +644,8 @@ body {
 
 @media (max-width: 768px) {
     .page {
-        padding: 16px;
-        align-items: stretch;
+        padding: 12px;
+        align-items: flex-start;
     }
 
     .panel-grid {
@@ -696,6 +706,10 @@ body {
 
 .layout-landscape .panel-grid > .panel-section {
     order: 0;
+}
+
+.layout-landscape body {
+    overflow: hidden;
 }
 
 .layout-portrait .panel-grid {
