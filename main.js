@@ -480,6 +480,36 @@ if (logModal) {
   });
 }
 
+if (speedSliderWrap) {
+  ["touchstart", "touchmove"].forEach((evt) => {
+    speedSliderWrap.addEventListener(
+      evt,
+      (e) => {
+        e.preventDefault();
+      },
+      { passive: false }
+    );
+  });
+
+  speedSliderWrap.addEventListener(
+    "wheel",
+    (e) => {
+      if (!speedSlider) return;
+      e.preventDefault();
+      const step = 5;
+      const min = Number(speedSlider.min) || 0;
+      const max = Number(speedSlider.max) || 255;
+      const next = Math.min(
+        max,
+        Math.max(min, Number(speedSlider.value) - Math.sign(e.deltaY) * step)
+      );
+      speedSlider.value = String(next);
+      updateSpeedUI(next);
+    },
+    { passive: false }
+  );
+}
+
 window.addEventListener("resize", updateLayoutMode);
 window.addEventListener("orientationchange", updateLayoutMode);
 window.addEventListener("DOMContentLoaded", updateLayoutMode);
@@ -541,21 +571,38 @@ function closeLogModal() {
 function updateLayoutMode() {
   const root = document.documentElement;
   const body = document.body;
+  const appEl = document.querySelector(".app");
   const mediaLandscape = window.matchMedia("(orientation: landscape)");
   const isLandscape =
     mediaLandscape.matches || window.innerWidth > window.innerHeight;
+  const viewportWidth = window.innerWidth || APP_BASE_WIDTH;
+  const viewportHeight = window.innerHeight || 800;
+  let scale = 1;
 
   if (isLandscape) {
     body.classList.add("layout-landscape");
     body.classList.remove("layout-portrait");
-    const viewportWidth = window.innerWidth || APP_BASE_WIDTH;
-    const scale = Math.min(1, viewportWidth / APP_BASE_WIDTH);
-    root.style.setProperty("--app-scale", scale.toFixed(3));
+    if (appEl) {
+      const rect = appEl.getBoundingClientRect();
+      scale = Math.min(
+        1,
+        viewportWidth / (rect.width || APP_BASE_WIDTH),
+        viewportHeight / (rect.height || viewportHeight)
+      );
+    }
+    root.style.setProperty("--page-align", "center");
   } else {
     body.classList.add("layout-portrait");
     body.classList.remove("layout-landscape");
-    root.style.setProperty("--app-scale", "1");
+    if (appEl) {
+      const rect = appEl.getBoundingClientRect();
+      scale = Math.min(1, viewportWidth / (rect.width || APP_BASE_WIDTH));
+    }
+    root.style.setProperty("--page-align", "flex-start");
   }
+
+  root.style.setProperty("--app-scale", scale.toFixed(3));
+  root.style.setProperty("--page-justify", "center");
 
   syncSliderHeight();
 }

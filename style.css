@@ -8,6 +8,8 @@
     --panel-bg: #f7f7f7;
     --card-bg: #ffffff;
     --app-scale: 1;
+    --page-align: center;
+    --page-justify: center;
 }
 
 *,
@@ -29,8 +31,8 @@ body {
 
 body {
     display: flex;
-    align-items: center;
-    justify-content: center;
+    align-items: var(--page-align);
+    justify-content: var(--page-justify);
 }
 
 /* ----- Фон с цветными блоками ----- */
@@ -40,8 +42,8 @@ body {
     min-height: 100vh;
     width: 100%;
     display: flex;
-    justify-content: center;
-    align-items: center;
+    justify-content: var(--page-justify);
+    align-items: var(--page-align);
     padding: 24px;
     overflow: hidden;
 }
@@ -408,6 +410,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    touch-action: none;
 }
 
 .speed-panel {
@@ -424,6 +427,7 @@ body {
     justify-content: center;
     align-items: center;
     gap: 0;
+    touch-action: none;
 }
 
 .speed-scale {
@@ -481,6 +485,7 @@ body {
     --track-width: 26px;
     --track-inset: 0px;
     overflow: visible;
+    touch-action: none;
 }
 
 /* Сам слайдер */
@@ -499,6 +504,7 @@ body {
     z-index: 3;
     margin: 0;
     opacity: 0;
+    touch-action: none;
 }
 
 /* WebKit трек */
