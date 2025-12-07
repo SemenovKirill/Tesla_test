@@ -19,6 +19,7 @@ const speedSliderWrap = document.querySelector(".speed-slider-wrap");
 const SLIDER_TRACK_INSET = 0;
 const SPEED_VALUE_OFFSET = -80;
 const APP_BASE_WIDTH = 1200;
+const APP_BASE_HEIGHT = 780;
 let appBaseHeight = null;
 const logModal = document.getElementById("log-modal");
 const logModalClose = document.getElementById("log-modal-close");
@@ -444,7 +445,14 @@ function updateThumbPosition() {
 
   if (speedValueDisplay) {
     const bubbleOffset = offset + (thumbHeight - bubbleHeight) / 2;
-    speedValueDisplay.style.transform = `translate(calc(-50% + ${SPEED_VALUE_OFFSET}px), ${bubbleOffset}px)`;
+    const uiScale =
+      parseFloat(
+        getComputedStyle(document.documentElement).getPropertyValue(
+          "--ui-scale"
+        )
+      ) || 1;
+    const valueOffset = SPEED_VALUE_OFFSET * uiScale;
+    speedValueDisplay.style.transform = `translate(calc(-50% + ${valueOffset}px), ${bubbleOffset}px)`;
   }
 
   positionTicks();
@@ -607,7 +615,8 @@ function updateLayoutMode() {
     body.classList.remove("layout-portrait");
     if (appEl) {
       const rect = appEl.getBoundingClientRect();
-      const baseHeight = appBaseHeight || rect.height || viewportHeight;
+      const baseHeight =
+        appBaseHeight || rect.height || APP_BASE_HEIGHT || viewportHeight;
       scale = Math.min(
         1,
         viewportWidth / (rect.width || APP_BASE_WIDTH),
@@ -620,12 +629,18 @@ function updateLayoutMode() {
     body.classList.remove("layout-landscape");
     if (appEl) {
       const rect = appEl.getBoundingClientRect();
-      scale = Math.min(1, viewportWidth / (rect.width || APP_BASE_WIDTH));
+      const baseHeight =
+        appBaseHeight || rect.height || APP_BASE_HEIGHT || viewportHeight;
+      scale = Math.min(
+        1,
+        viewportWidth / (rect.width || APP_BASE_WIDTH),
+        viewportHeight / baseHeight
+      );
     }
     root.style.setProperty("--page-align", "flex-start");
   }
 
-  root.style.setProperty("--app-scale", scale.toFixed(3));
+  root.style.setProperty("--ui-scale", scale.toFixed(3));
   root.style.setProperty("--page-justify", "center");
 
   syncSliderHeight();
