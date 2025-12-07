@@ -329,11 +329,12 @@ function updateConnectButton() {
 
   if (connectionStatusBadge) {
     if (isConnected) {
-      connectionStatusBadge.textContent = "ПОДКЛЮЧЕНО";
+      const deviceName = deviceCache?.name ? `: ${deviceCache.name}` : "";
+      connectionStatusBadge.textContent = `Подключено${deviceName}`;
       connectionStatusBadge.classList.add("connection-status--online");
       connectionStatusBadge.classList.remove("connection-status--offline");
     } else {
-      connectionStatusBadge.textContent = "НЕ ПОДКЛЮЧЕНО";
+      connectionStatusBadge.textContent = "Не подключено";
       connectionStatusBadge.classList.add("connection-status--offline");
       connectionStatusBadge.classList.remove("connection-status--online");
     }

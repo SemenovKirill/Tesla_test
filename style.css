@@ -66,6 +66,9 @@ body {
     align-items: var(--page-align);
     justify-content: var(--page-justify);
     touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
 }
 
 /* ----- Фон с цветными блоками ----- */
@@ -874,7 +877,10 @@ body.layout-landscape {
     align-items: center;
     justify-content: center;
     padding: 24px;
-    pointer-events: none;
+    pointer-events: auto;
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
 }
 
 .install-banner[hidden] {
@@ -909,7 +915,7 @@ body.layout-landscape {
 
 .install-banner__actions {
     display: flex;
-    gap: calc(12px * var(--space-scale));
+    gap: calc(20px * var(--space-scale));
     flex-wrap: wrap;
     justify-content: center;
 }
@@ -929,6 +935,8 @@ body.layout-landscape {
     letter-spacing: 0.04em;
     cursor: pointer;
     box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2);
+    min-width: 140px;
+    text-align: center;
 }
 
 .install-close {
@@ -940,6 +948,8 @@ body.layout-landscape {
     font-size: calc(14px * var(--ui-scale));
     font-weight: 700;
     cursor: pointer;
+    min-width: 140px;
+    text-align: center;
 }
 
 @media (min-width: 768px) {
