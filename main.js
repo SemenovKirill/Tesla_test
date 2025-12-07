@@ -23,6 +23,8 @@ const APP_BASE_HEIGHT = 780;
 let appBaseHeight = null;
 let panelBaseHeight = null;
 let panelBaseWidth = null;
+const HOLD_INTERVAL_MS = 140;
+const activeHolds = new Map();
 const logModal = document.getElementById("log-modal");
 const logModalClose = document.getElementById("log-modal-close");
 const logModalList = document.getElementById("log-modal-list");
@@ -257,16 +259,42 @@ function setupControlButtons() {
   const buttons = document.querySelectorAll("[data-cmd]");
 
   buttons.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const cmd = btn.dataset.cmd;
-      if (!cmd) return;
+    const cmd = btn.dataset.cmd;
+    if (!cmd) return;
 
+    const sendOnce = () => {
       if (isDirection(cmd)) {
         sendDrive(cmd);
       } else {
         send(cmd);
       }
-    });
+    };
+
+    if (isDirection(cmd)) {
+      const startHold = (e) => {
+        if (e) e.preventDefault();
+        stopHold(btn);
+        sendOnce();
+        const timer = setInterval(sendOnce, HOLD_INTERVAL_MS);
+        activeHolds.set(btn, timer);
+      };
+
+      const stopHold = () => {
+        const timer = activeHolds.get(btn);
+        if (timer) {
+          clearInterval(timer);
+          activeHolds.delete(btn);
+        }
+      };
+
+      btn.addEventListener("mousedown", startHold);
+      btn.addEventListener("touchstart", startHold, { passive: false });
+      ["mouseup", "mouseleave", "touchend", "touchcancel"].forEach((evt) => {
+        btn.addEventListener(evt, stopHold);
+      });
+    } else {
+      btn.addEventListener("click", sendOnce);
+    }
   });
 }
 
@@ -469,6 +497,19 @@ if (speedSlider) {
     updateSpeedUI(Number.isFinite(value) ? value : 0);
   });
 
+  speedSlider.addEventListener("keydown", (event) => {
+    const key = event.key.toLowerCase();
+    if (
+      key === "arrowup" ||
+      key === "arrowdown" ||
+      key === "arrowleft" ||
+      key === "arrowright"
+    ) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+  });
+
   syncSliderHeight();
   window.addEventListener("resize", syncSliderHeight);
   window.addEventListener("load", syncSliderHeight);
@@ -539,6 +580,15 @@ if (speedSliderWrap) {
     speedSlider.addEventListener(evt, handleSliderTouch, { passive: false });
   });
 }
+
+function stopAllHolds() {
+  activeHolds.forEach((timer) => clearInterval(timer));
+  activeHolds.clear();
+}
+
+["mouseup", "touchend", "touchcancel", "blur"].forEach((evt) => {
+  window.addEventListener(evt, stopAllHolds, { passive: true });
+});
 
 window.addEventListener("resize", updateLayoutMode);
 window.addEventListener("orientationchange", updateLayoutMode);
@@ -824,3 +874,12 @@ function updateLayoutAndScale() {
 window.addEventListener("load", updateLayoutAndScale);
 window.addEventListener("resize", updateLayoutAndScale);
 window.addEventListener("orientationchange", updateLayoutAndScale);
+
+// Блокируем двойной тап зум на мобильных, оставляя двойные клики рабочими
+window.addEventListener(
+  "dblclick",
+  (e) => {
+    e.preventDefault();
+  },
+  { passive: false }
+);

@@ -65,6 +65,7 @@ body {
     display: flex;
     align-items: var(--page-align);
     justify-content: var(--page-justify);
+    touch-action: manipulation;
 }
 
 /* ----- Фон с цветными блоками ----- */
