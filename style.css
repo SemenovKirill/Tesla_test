@@ -7,6 +7,7 @@
 
     --panel-bg: #f7f7f7;
     --card-bg: #ffffff;
+    --app-scale: 1;
 }
 
 *,
@@ -71,6 +72,8 @@ body {
     width: 100%;
     max-width: 1200px;
     margin: 0 auto;
+    transform: scale(var(--app-scale));
+    transform-origin: top center;
 }
 
 /* ----- Заголовок ----- */
@@ -335,9 +338,10 @@ body {
 }
 
 .actions {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
+    align-items: start;
 }
 
 .actions-card {
@@ -358,7 +362,8 @@ body {
 .actions-buttons {
     margin-top: 8px;
     display: flex;
-    gap: 10px;
+    gap: 8px;
+    flex-direction: column;
 }
 
 .action-btn {
@@ -675,6 +680,32 @@ body {
     .speed-content {
         justify-content: flex-start;
     }
+}
+
+/* ----- Ориентация ----- */
+
+.layout-landscape .panel-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.layout-landscape .panel-grid > .panel-section {
+    order: 0;
+}
+
+.layout-portrait .panel-grid {
+    grid-template-columns: 1fr;
+}
+
+.layout-portrait .panel-section--movement {
+    order: 1;
+}
+
+.layout-portrait .panel-section--power {
+    order: 2;
+}
+
+.layout-portrait .panel-section--commands {
+    order: 3;
 }
 
 /* ----- Модалка логов ----- */

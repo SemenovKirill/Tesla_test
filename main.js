@@ -18,6 +18,7 @@ const speedThumb = document.querySelector(".speed-thumb-visual");
 const speedSliderWrap = document.querySelector(".speed-slider-wrap");
 const SLIDER_TRACK_INSET = 0;
 const SPEED_VALUE_OFFSET = -80;
+const APP_BASE_WIDTH = 1200;
 const logModal = document.getElementById("log-modal");
 const logModalClose = document.getElementById("log-modal-close");
 const logModalList = document.getElementById("log-modal-list");
@@ -479,6 +480,11 @@ if (logModal) {
   });
 }
 
+window.addEventListener("resize", updateLayoutMode);
+window.addEventListener("orientationchange", updateLayoutMode);
+window.addEventListener("DOMContentLoaded", updateLayoutMode);
+window.addEventListener("load", updateLayoutMode);
+
 function positionTicks() {
   const scale = document.querySelector(".speed-scale");
   if (!scale) return;
@@ -530,6 +536,28 @@ function openLogModal() {
 function closeLogModal() {
   if (!logModal) return;
   logModal.classList.remove("is-open");
+}
+
+function updateLayoutMode() {
+  const root = document.documentElement;
+  const body = document.body;
+  const mediaLandscape = window.matchMedia("(orientation: landscape)");
+  const isLandscape =
+    mediaLandscape.matches || window.innerWidth > window.innerHeight;
+
+  if (isLandscape) {
+    body.classList.add("layout-landscape");
+    body.classList.remove("layout-portrait");
+    const viewportWidth = window.innerWidth || APP_BASE_WIDTH;
+    const scale = Math.min(1, viewportWidth / APP_BASE_WIDTH);
+    root.style.setProperty("--app-scale", scale.toFixed(3));
+  } else {
+    body.classList.add("layout-portrait");
+    body.classList.remove("layout-landscape");
+    root.style.setProperty("--app-scale", "1");
+  }
+
+  syncSliderHeight();
 }
 
 /* -----------------------------
