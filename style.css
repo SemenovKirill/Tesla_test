@@ -911,6 +911,7 @@ body.layout-landscape {
     display: flex;
     gap: calc(12px * var(--space-scale));
     flex-wrap: wrap;
+    justify-content: center;
 }
 
 .install-btn {
