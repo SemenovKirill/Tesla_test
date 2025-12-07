@@ -868,11 +868,13 @@ body.layout-landscape {
 
 .install-banner {
     position: fixed;
-    left: 12px;
-    right: 12px;
-    bottom: 12px;
+    inset: 0;
     z-index: 1200;
     display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    pointer-events: none;
 }
 
 .install-banner[hidden] {
@@ -880,76 +882,67 @@ body.layout-landscape {
 }
 
 .install-banner__content {
+    max-width: 420px;
+    width: min(90vw, 420px);
     background: #ffffff;
     border-radius: var(--panel-radius);
     box-shadow:
-        0 8px 20px rgba(0, 0, 0, 0.2),
-        0 0 0 1px rgba(0, 0, 0, 0.06);
-    padding: calc(12px * var(--space-scale)) calc(14px * var(--space-scale));
+        0 12px 32px rgba(0, 0, 0, 0.25),
+        0 0 0 1px rgba(0, 0, 0, 0.08);
+    padding: calc(16px * var(--space-scale)) calc(18px * var(--space-scale));
     display: flex;
     flex-direction: column;
-    gap: calc(10px * var(--space-scale));
+    gap: calc(12px * var(--space-scale));
+    pointer-events: auto;
 }
 
 .install-banner__text {
-    font-size: calc(14px * var(--ui-scale));
-    font-weight: 700;
+    font-size: calc(16px * var(--ui-scale));
+    font-weight: 800;
     letter-spacing: 0.03em;
 }
 
 .install-banner__note {
-    font-size: calc(12px * var(--ui-scale));
+    font-size: calc(13px * var(--ui-scale));
     color: rgba(26, 26, 24, 0.75);
 }
 
 .install-banner__actions {
     display: flex;
-    gap: calc(10px * var(--space-scale));
+    gap: calc(12px * var(--space-scale));
     flex-wrap: wrap;
 }
 
 .install-btn {
     border: none;
     border-radius: var(--card-radius);
-    padding: calc(10px * var(--space-scale)) calc(18px * var(--space-scale));
+    padding: calc(12px * var(--space-scale)) calc(20px * var(--space-scale));
     background: linear-gradient(
         135deg,
         var(--tesla-purple) 0%,
         var(--tesla-pink) 100%
     );
     color: #ffffff;
-    font-size: calc(14px * var(--ui-scale));
-    font-weight: 700;
+    font-size: calc(15px * var(--ui-scale));
+    font-weight: 800;
     letter-spacing: 0.04em;
     cursor: pointer;
-    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.18);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2);
 }
 
 .install-close {
     border: 1px solid rgba(0, 0, 0, 0.12);
     border-radius: var(--card-radius);
-    padding: calc(10px * var(--space-scale)) calc(16px * var(--space-scale));
+    padding: calc(12px * var(--space-scale)) calc(18px * var(--space-scale));
     background: #ffffff;
     color: rgba(26, 26, 24, 0.85);
-    font-size: calc(13px * var(--ui-scale));
-    font-weight: 600;
+    font-size: calc(14px * var(--ui-scale));
+    font-weight: 700;
     cursor: pointer;
 }
 
 @media (min-width: 768px) {
     .install-banner {
-        left: 20px;
-        right: 20px;
-    }
-
-    .install-banner__content {
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
-        gap: calc(12px * var(--space-scale));
-    }
-
-    .install-banner__actions {
-        flex-wrap: nowrap;
+        padding: 32px;
     }
 }
