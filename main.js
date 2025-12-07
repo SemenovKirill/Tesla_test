@@ -29,6 +29,13 @@ const logModal = document.getElementById("log-modal");
 const logModalClose = document.getElementById("log-modal-close");
 const logModalList = document.getElementById("log-modal-list");
 const logHistory = [];
+const installBanner = document.getElementById("install-banner");
+const installConfirmBtn = document.getElementById("install-confirm");
+const installDismissBtn = document.getElementById("install-dismiss");
+const installNote = document.getElementById("install-note");
+let deferredInstallPrompt = null;
+const INSTALL_DISMISS_KEY = "pwa-install-dismissed-at";
+const DISMISS_INTERVAL_MS = 24 * 60 * 60 * 1000;
 
 /* -----------------------------
    Старые элементы (опционально)
@@ -588,6 +595,102 @@ function stopAllHolds() {
 
 ["mouseup", "touchend", "touchcancel", "blur"].forEach((evt) => {
   window.addEventListener(evt, stopAllHolds, { passive: true });
+});
+
+/* -----------------------------
+   PWA баннер установки
+   ----------------------------- */
+
+function isStandalone() {
+  return (
+    window.matchMedia("(display-mode: standalone)").matches ||
+    window.navigator.standalone === true
+  );
+}
+
+function isIOS() {
+  return /iphone|ipad|ipod/i.test(window.navigator.userAgent || "");
+}
+
+function wasDismissedRecently() {
+  const ts = Number(localStorage.getItem(INSTALL_DISMISS_KEY) || 0);
+  return ts > 0 && Date.now() - ts < DISMISS_INTERVAL_MS;
+}
+
+function markDismissed() {
+  localStorage.setItem(INSTALL_DISMISS_KEY, String(Date.now()));
+}
+
+function hideInstallBanner() {
+  if (installBanner) {
+    installBanner.hidden = true;
+  }
+}
+
+function showInstallBanner(mode = "prompt") {
+  if (!installBanner) return;
+  if (isStandalone() || wasDismissedRecently()) return;
+
+  installBanner.hidden = false;
+
+  if (installNote) {
+    installNote.textContent =
+      mode === "ios"
+        ? 'Откройте меню "Поделиться" → "На экран Домой".'
+        : "";
+  }
+
+  if (installConfirmBtn) {
+    installConfirmBtn.style.display =
+      mode === "prompt" && deferredInstallPrompt ? "" : "none";
+  }
+}
+
+window.addEventListener("beforeinstallprompt", (event) => {
+  event.preventDefault();
+  deferredInstallPrompt = event;
+  if (!isStandalone() && !wasDismissedRecently()) {
+    showInstallBanner("prompt");
+  }
+});
+
+window.addEventListener("appinstalled", () => {
+  deferredInstallPrompt = null;
+  hideInstallBanner();
+  localStorage.removeItem(INSTALL_DISMISS_KEY);
+});
+
+if (installConfirmBtn) {
+  installConfirmBtn.addEventListener("click", async () => {
+    if (!deferredInstallPrompt) {
+      hideInstallBanner();
+      return;
+    }
+    deferredInstallPrompt.prompt();
+    const choice = await deferredInstallPrompt.userChoice.catch(() => null);
+    if (choice && choice.outcome === "accepted") {
+      hideInstallBanner();
+      localStorage.removeItem(INSTALL_DISMISS_KEY);
+    }
+    deferredInstallPrompt = null;
+  });
+}
+
+if (installDismissBtn) {
+  installDismissBtn.addEventListener("click", () => {
+    markDismissed();
+    hideInstallBanner();
+  });
+}
+
+// Фолбэк для iOS: показать подсказку, если install prompt недоступен
+window.addEventListener("load", () => {
+  if (isStandalone() || wasDismissedRecently()) return;
+  setTimeout(() => {
+    if (!deferredInstallPrompt && isIOS()) {
+      showInstallBanner("ios");
+    }
+  }, 1500);
 });
 
 window.addEventListener("resize", updateLayoutMode);
