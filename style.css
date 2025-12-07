@@ -347,6 +347,17 @@ body {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
+.dpad-btn.is-holding {
+    transform: translateY(1px);
+    background: linear-gradient(
+        135deg,
+        var(--tesla-purple-light),
+        var(--tesla-purple)
+    );
+    color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
 .dpad-center {
     width: 72px;
     height: 72px;

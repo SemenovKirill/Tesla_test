@@ -284,6 +284,7 @@ function setupControlButtons() {
         sendOnce();
         const timer = setInterval(sendOnce, HOLD_INTERVAL_MS);
         activeHolds.set(btn, timer);
+        btn.classList.add("is-holding");
       };
 
       const stopHold = () => {
@@ -292,6 +293,7 @@ function setupControlButtons() {
           clearInterval(timer);
           activeHolds.delete(btn);
         }
+        btn.classList.remove("is-holding");
       };
 
       btn.addEventListener("mousedown", startHold);
@@ -589,7 +591,12 @@ if (speedSliderWrap) {
 }
 
 function stopAllHolds() {
-  activeHolds.forEach((timer) => clearInterval(timer));
+  activeHolds.forEach((timer, btn) => {
+    clearInterval(timer);
+    if (btn && btn.classList) {
+      btn.classList.remove("is-holding");
+    }
+  });
   activeHolds.clear();
 }
 
