@@ -302,6 +302,27 @@ body {
         border-color 0.1s ease;
 }
 
+.dpad-icon {
+    display: inline-block;
+    transform: rotate(0deg);
+}
+
+.dpad-icon--up {
+    transform: rotate(0deg);
+}
+
+.dpad-icon--right {
+    transform: rotate(90deg);
+}
+
+.dpad-icon--down {
+    transform: rotate(180deg);
+}
+
+.dpad-icon--left {
+    transform: rotate(270deg);
+}
+
 .dpad-spacer {
     width: var(--dpad-size);
     height: var(--dpad-size);
