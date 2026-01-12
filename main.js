@@ -8,8 +8,50 @@ let tryme_button = document.getElementById("try_me");
 
 // Новый основной UI
 let bigConnectBtn = document.getElementById("connect-btn");
-let connectionStatusBadge = document.getElementById("connection-status");
 let statusLogLine = document.getElementById("status-log");
+const panelSwitchButtons = document.querySelectorAll("[data-panel-target]");
+const panelViews = document.querySelectorAll("[data-panel-view]");
+const panelViewOne = document.querySelector('[data-panel-view="panel-1"]');
+const panelViewTwo = document.querySelector('[data-panel-view="panel-2"]');
+const DEFAULT_PANEL_ID = "panel-1";
+const PANEL2_COMMAND_MAP = {
+  "leg-ccw": "l",
+  "leg-up": "f",
+  "leg-cw": "r",
+  "leg-right": "i",
+  "leg-down-right": "j",
+  "leg-down": "b",
+  "leg-down-left": "h",
+  "leg-left": "k",
+  "claw-open": "e",
+  "claw-close": "d",
+  "arm-up": "y",
+  "arm-down": "z",
+};
+const PANEL2_KEY_MAP = {
+  q: "leg-ccw",
+  w: "leg-up",
+  e: "leg-cw",
+  d: "leg-right",
+  c: "leg-down-right",
+  s: "leg-down",
+  z: "leg-down-left",
+  a: "leg-left",
+  arrowleft: "claw-open",
+  arrowright: "claw-close",
+  arrowup: "arm-up",
+  arrowdown: "arm-down",
+};
+const PANEL2_DIRECTION_COMMANDS = new Set([
+  "leg-up",
+  "leg-down",
+  "leg-left",
+  "leg-right",
+  "leg-ccw",
+  "leg-cw",
+  "leg-down-left",
+  "leg-down-right",
+]);
 
 let speedSlider = document.getElementById("speed-slider");
 let speedValueDisplay = document.getElementById("speed-value");
@@ -24,7 +66,10 @@ let appBaseHeight = null;
 let panelBaseHeight = null;
 let panelBaseWidth = null;
 const HOLD_INTERVAL_MS = 140;
-const activeHolds = new Map();
+const activeHolds = {
+  panel1: new Map(),
+  panel2: new Map(),
+};
 const logModal = document.getElementById("log-modal");
 const logModalClose = document.getElementById("log-modal-close");
 const logModalList = document.getElementById("log-modal-list");
@@ -258,12 +303,24 @@ function writeToCharacteristic(characteristic, data) {
   characteristic.writeValue(new TextEncoder().encode(data));
 }
 
+function buildPanel2Command(cmd) {
+  if (!cmd) return "";
+  return PANEL2_COMMAND_MAP[String(cmd)] || "";
+}
+
+function sendPanel2(data) {
+  const payload = buildPanel2Command(data);
+  if (!payload) return;
+  send(payload, { appendNewline: true });
+}
+
 /* -----------------------------
-   Привязка кнопок (data-cmd)
+   Привязка кнопок (пульт 1)
    ----------------------------- */
 
-function setupControlButtons() {
-  const buttons = document.querySelectorAll("[data-cmd]");
+function setupControlButtonsPanel1() {
+  if (!panelViewOne) return;
+  const buttons = panelViewOne.querySelectorAll("[data-cmd]");
 
   buttons.forEach((btn) => {
     const cmd = btn.dataset.cmd;
@@ -283,15 +340,15 @@ function setupControlButtons() {
         stopHold(btn);
         sendOnce();
         const timer = setInterval(sendOnce, HOLD_INTERVAL_MS);
-        activeHolds.set(btn, timer);
+        activeHolds.panel1.set(btn, timer);
         btn.classList.add("is-holding");
       };
 
       const stopHold = () => {
-        const timer = activeHolds.get(btn);
+        const timer = activeHolds.panel1.get(btn);
         if (timer) {
           clearInterval(timer);
-          activeHolds.delete(btn);
+          activeHolds.panel1.delete(btn);
         }
         btn.classList.remove("is-holding");
       };
@@ -307,7 +364,112 @@ function setupControlButtons() {
   });
 }
 
-window.addEventListener("DOMContentLoaded", setupControlButtons);
+/* -----------------------------
+   Привязка кнопок (пульт 2)
+   ----------------------------- */
+
+function setupControlButtonsPanel2() {
+  if (!panelViewTwo) return;
+  const buttons = panelViewTwo.querySelectorAll("[data-cmd]");
+
+  buttons.forEach((btn) => {
+    const cmd = btn.dataset.cmd;
+    if (!cmd) return;
+
+    const sendOnce = () => {
+      if (isDirectionPanel2(cmd)) {
+        sendDrivePanel2(cmd);
+      } else {
+        sendPanel2(cmd);
+      }
+    };
+
+    if (isDirectionPanel2(cmd)) {
+      const startHold = (e) => {
+        if (e) e.preventDefault();
+        stopHold(btn);
+        sendOnce();
+        const timer = setInterval(sendOnce, HOLD_INTERVAL_MS);
+        activeHolds.panel2.set(btn, timer);
+        btn.classList.add("is-holding");
+      };
+
+      const stopHold = () => {
+        const timer = activeHolds.panel2.get(btn);
+        if (timer) {
+          clearInterval(timer);
+          activeHolds.panel2.delete(btn);
+        }
+        btn.classList.remove("is-holding");
+      };
+
+      btn.addEventListener("mousedown", startHold);
+      btn.addEventListener("touchstart", startHold, { passive: false });
+      ["mouseup", "mouseleave", "touchend", "touchcancel"].forEach((evt) => {
+        btn.addEventListener(evt, stopHold);
+      });
+    } else {
+      btn.addEventListener("click", sendOnce);
+    }
+  });
+}
+
+function getActivePanelId() {
+  return document.body?.getAttribute("data-active-panel") || DEFAULT_PANEL_ID;
+}
+
+function setActivePanel(panelId) {
+  panelViews.forEach((panel) => {
+    const isActive = panel.dataset.panelView === panelId;
+    panel.classList.toggle("is-active", isActive);
+    panel.setAttribute("aria-hidden", isActive ? "false" : "true");
+  });
+
+  panelSwitchButtons.forEach((btn) => {
+    const isActive = btn.dataset.panelTarget === panelId;
+    btn.classList.toggle("is-active", isActive);
+    btn.setAttribute("aria-pressed", isActive ? "true" : "false");
+  });
+
+  if (document.body) {
+    document.body.setAttribute("data-active-panel", panelId);
+  }
+
+  appBaseHeight = null;
+  panelBaseHeight = null;
+  panelBaseWidth = null;
+  layoutBaseSize.landscape = null;
+  layoutBaseSize.portrait = null;
+
+  stopAllHolds();
+  syncSliderHeight();
+  updateLayoutMode();
+  updateLayoutAndScale();
+}
+
+function initPanelSwitching() {
+  if (!panelViews.length || !panelSwitchButtons.length) return;
+  const initialPanel =
+    document.querySelector(".panel-view.is-active")?.dataset.panelView ||
+    panelViews[0]?.dataset.panelView ||
+    DEFAULT_PANEL_ID;
+
+  setActivePanel(initialPanel);
+
+  panelSwitchButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const target = btn.dataset.panelTarget;
+      if (!target) return;
+      setActivePanel(target);
+    });
+  });
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  setupControlButtonsPanel1();
+  setupControlButtonsPanel2();
+  initPanelSwitching();
+});
 
 /* -----------------------------
    Кнопка "Подключение Bluetooth"
@@ -319,24 +481,12 @@ function updateConnectButton() {
 
   if (bigConnectBtn) {
     if (isConnected) {
-      bigConnectBtn.textContent = "Отключить";
-      bigConnectBtn.classList.add("connected");
+      const deviceName = deviceCache?.name ? `: ${deviceCache.name}` : "";
+      bigConnectBtn.textContent = `Подключено${deviceName}`;
+      bigConnectBtn.classList.add("is-status", "is-connected");
     } else {
       bigConnectBtn.textContent = "Подключить";
-      bigConnectBtn.classList.remove("connected");
-    }
-  }
-
-  if (connectionStatusBadge) {
-    if (isConnected) {
-      const deviceName = deviceCache?.name ? `: ${deviceCache.name}` : "";
-      connectionStatusBadge.textContent = `Подключено${deviceName}`;
-      connectionStatusBadge.classList.add("connection-status--online");
-      connectionStatusBadge.classList.remove("connection-status--offline");
-    } else {
-      connectionStatusBadge.textContent = "Не подключено";
-      connectionStatusBadge.classList.add("connection-status--offline");
-      connectionStatusBadge.classList.remove("connection-status--online");
+      bigConnectBtn.classList.remove("is-status", "is-connected");
     }
   }
 }
@@ -346,9 +496,7 @@ if (bigConnectBtn) {
     // 1 — устройства нет → ищем
     if (!deviceCache) {
       bigConnectBtn.textContent = "Поиск...";
-      if (connectionStatusBadge) {
-        connectionStatusBadge.textContent = "ПОИСК...";
-      }
+      bigConnectBtn.classList.remove("is-status", "is-connected");
 
       try {
         await connect();
@@ -363,9 +511,7 @@ if (bigConnectBtn) {
     // 2 — устройство есть, но не подключено
     if (!deviceCache.gatt.connected) {
       bigConnectBtn.textContent = "Подключение...";
-      if (connectionStatusBadge) {
-        connectionStatusBadge.textContent = "ПОДКЛЮЧЕНИЕ...";
-      }
+      bigConnectBtn.classList.remove("is-status", "is-connected");
 
       try {
         await connectDeviceAndCacheCharacteristic(deviceCache);
@@ -393,7 +539,7 @@ if (bigConnectBtn) {
    Управление с клавиатуры (ПК)
    ----------------------------- */
 
-function handleKeyDown(event) {
+function handleKeyDownPanel1(event) {
   const key = event.key.toLowerCase();
 
   switch (key) {
@@ -431,6 +577,27 @@ function handleKeyDown(event) {
   }
 }
 
+function handleKeyDownPanel2(event) {
+  const key = event.key.toLowerCase();
+  if (!key) return;
+  const cmd = PANEL2_KEY_MAP[key];
+  if (!cmd) return;
+  if (isDirectionPanel2(cmd)) {
+    sendDrivePanel2(cmd);
+    return;
+  }
+  sendPanel2(cmd);
+}
+
+function handleKeyDown(event) {
+  if (getActivePanelId() === "panel-2") {
+    handleKeyDownPanel2(event);
+    return;
+  }
+
+  handleKeyDownPanel1(event);
+}
+
 window.addEventListener("keydown", handleKeyDown);
 
 /* -----------------------------
@@ -460,6 +627,49 @@ function syncSliderHeight() {
 
   updateThumbPosition();
   positionTicks();
+  syncPanel2SectionHeights();
+}
+
+function syncPanel2SectionHeights() {
+  if (!panelViewOne) return;
+  const movementSection = panelViewOne.querySelector(".panel-section--movement");
+  if (!movementSection) return;
+
+  let height = movementSection.offsetHeight || 0;
+
+  if (!height) {
+    const prevStyles = {
+      display: panelViewOne.style.display,
+      position: panelViewOne.style.position,
+      visibility: panelViewOne.style.visibility,
+      pointerEvents: panelViewOne.style.pointerEvents,
+      width: panelViewOne.style.width,
+      height: panelViewOne.style.height,
+    };
+
+    panelViewOne.style.display = "block";
+    panelViewOne.style.position = "absolute";
+    panelViewOne.style.visibility = "hidden";
+    panelViewOne.style.pointerEvents = "none";
+    panelViewOne.style.width = "100%";
+    panelViewOne.style.height = "auto";
+
+    height = movementSection.offsetHeight || 0;
+
+    panelViewOne.style.display = prevStyles.display;
+    panelViewOne.style.position = prevStyles.position;
+    panelViewOne.style.visibility = prevStyles.visibility;
+    panelViewOne.style.pointerEvents = prevStyles.pointerEvents;
+    panelViewOne.style.width = prevStyles.width;
+    panelViewOne.style.height = prevStyles.height;
+  }
+
+  if (height) {
+    document.documentElement.style.setProperty(
+      "--panel2-section-height",
+      `${height}px`
+    );
+  }
 }
 
 function updateThumbPosition() {
@@ -592,13 +802,15 @@ if (speedSliderWrap) {
 }
 
 function stopAllHolds() {
-  activeHolds.forEach((timer, btn) => {
-    clearInterval(timer);
-    if (btn && btn.classList) {
-      btn.classList.remove("is-holding");
-    }
+  Object.values(activeHolds).forEach((holds) => {
+    holds.forEach((timer, btn) => {
+      clearInterval(timer);
+      if (btn && btn.classList) {
+        btn.classList.remove("is-holding");
+      }
+    });
+    holds.clear();
   });
-  activeHolds.clear();
 }
 
 ["mouseup", "touchend", "touchcancel", "blur"].forEach((evt) => {
@@ -883,6 +1095,19 @@ function buildDriveCommand(direction) {
 function sendDrive(direction) {
   const cmd = buildDriveCommand(direction);
   send(cmd, { appendNewline: false });
+}
+
+function isDirectionPanel2(cmd) {
+  return PANEL2_DIRECTION_COMMANDS.has(cmd);
+}
+
+function buildDriveCommandPanel2(direction) {
+  return direction;
+}
+
+function sendDrivePanel2(direction) {
+  const cmd = buildDriveCommandPanel2(direction);
+  sendPanel2(cmd);
 }
 
 

@@ -10,7 +10,7 @@
     <!-- Open Sans по брендбуку -->
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800;1000;1300;1500&display=swap"
         rel="stylesheet"
     >
 
@@ -31,12 +31,6 @@
                     <h2 class="section-title">Соединение</h2>
                 </div>
                 <div class="section-body section-body--connection">
-                    <div
-                        class="connection-status connection-status--offline"
-                        id="connection-status"
-                    >
-                        НЕ ПОДКЛЮЧЕНО
-                    </div>
                     <button
                         id="connect-btn"
                         class="connect-btn"
@@ -44,209 +38,353 @@
                     >
                         Подключить
                     </button>
+                    <div class="panel-switch" role="group" aria-label="Панели управления">
+                        <button
+                            class="panel-switch-btn is-active"
+                            type="button"
+                            data-panel-target="panel-1"
+                            aria-pressed="true"
+                            aria-controls="panel-1"
+                        >
+                            Пульт 1
+                        </button>
+                        <button
+                            class="panel-switch-btn"
+                            type="button"
+                            data-panel-target="panel-2"
+                            aria-pressed="false"
+                            aria-controls="panel-2"
+                        >
+                            Пульт 2
+                        </button>
+                    </div>
                 </div>
             </section>
 
             <!-- Три основных блока: движение, команды, мощность -->
-            <div class="panel-grid">
-                <!-- Направление движения -->
-                <section class="panel-section panel-section--movement">
-                    <div class="section-header">
-                        <h2 class="section-title">Направление</h2>
-                    </div>
-                    <div class="section-body section-body--movement">
-                        <div class="dpad">
-                            <div class="dpad-row dpad-row--single">
-                                <button
-                                    class="dpad-btn dpad-btn--up"
-                                    data-cmd="up"
-                                >
-                                    <span class="dpad-icon dpad-icon--up">▲</span>
-                                </button>
+            <div class="panel-views">
+                <div class="panel-view is-active" data-panel-view="panel-1" id="panel-1">
+                    <div class="panel-grid">
+                        <!-- Направление движения -->
+                        <section class="panel-section panel-section--movement">
+                            <div class="section-header">
+                                <h2 class="section-title">Направление</h2>
                             </div>
+                            <div class="section-body section-body--movement">
+                                <div class="dpad">
+                                    <div class="dpad-row dpad-row--single">
+                                        <button
+                                            class="dpad-btn dpad-btn--up"
+                                            data-cmd="up"
+                                        >
+                                            <span class="dpad-icon dpad-icon--up">▲</span>
+                                        </button>
+                                    </div>
 
-                            <div class="dpad-row dpad-row--middle">
-                                <button
-                                    class="dpad-btn dpad-btn--left"
-                                    data-cmd="left"
-                                >
-                                    <span class="dpad-icon dpad-icon--left">▲</span>
-                                </button>
-                                <div class="dpad-spacer" aria-hidden="true"></div>
-                                <button
-                                    class="dpad-btn dpad-btn--right"
-                                    data-cmd="right"
-                                >
-                                    <span class="dpad-icon dpad-icon--right">▲</span>
-                                </button>
-                            </div>
+                                    <div class="dpad-row dpad-row--middle">
+                                        <button
+                                            class="dpad-btn dpad-btn--left"
+                                            data-cmd="left"
+                                        >
+                                            <span class="dpad-icon dpad-icon--left">▲</span>
+                                        </button>
+                                        <div class="dpad-spacer" aria-hidden="true"></div>
+                                        <button
+                                            class="dpad-btn dpad-btn--right"
+                                            data-cmd="right"
+                                        >
+                                            <span class="dpad-icon dpad-icon--right">▲</span>
+                                        </button>
+                                    </div>
 
-                            <div class="dpad-row dpad-row--single">
-                                <button
-                                    class="dpad-btn dpad-btn--down"
-                                    data-cmd="down"
-                                >
-                                    <span class="dpad-icon dpad-icon--down">▲</span>
-                                </button>
-                            </div>
+                                    <div class="dpad-row dpad-row--single">
+                                        <button
+                                            class="dpad-btn dpad-btn--down"
+                                            data-cmd="down"
+                                        >
+                                            <span class="dpad-icon dpad-icon--down">▲</span>
+                                        </button>
+                                    </div>
 
 
-                            <!-- 
-                            <div class="dpad-row dpad-row--single">
-                                <button
-                                    class="dpad-btn dpad-btn--up"
-                                    data-cmd="up"
-                                >
-                                    ▲
-                                </button>
-                            </div>
+                                    <!-- 
+                                    <div class="dpad-row dpad-row--single">
+                                        <button
+                                            class="dpad-btn dpad-btn--up"
+                                            data-cmd="up"
+                                        >
+                                            ▲
+                                        </button>
+                                    </div>
 
-                            <div class="dpad-row dpad-row--middle">
-                                <button
-                                    class="dpad-btn dpad-btn--left"
-                                    data-cmd="left"
-                                >
-                                    ◀
-                                </button>
-                                <div class="dpad-spacer" aria-hidden="true"></div>
-                                <button
-                                    class="dpad-btn dpad-btn--right"
-                                    data-cmd="right"
-                                >
-                                    ▶
-                                </button>
-                            </div>
+                                    <div class="dpad-row dpad-row--middle">
+                                        <button
+                                            class="dpad-btn dpad-btn--left"
+                                            data-cmd="left"
+                                        >
+                                            ◀
+                                        </button>
+                                        <div class="dpad-spacer" aria-hidden="true"></div>
+                                        <button
+                                            class="dpad-btn dpad-btn--right"
+                                            data-cmd="right"
+                                        >
+                                            ▶
+                                        </button>
+                                    </div>
 
-                            <div class="dpad-row dpad-row--single">
-                                <button
-                                    class="dpad-btn dpad-btn--down"
-                                    data-cmd="down"
-                                >
-                                    ▼
-                                </button>
-                            </div>-->
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Команды A B C X Y Z -->
-                <section class="panel-section panel-section--commands">
-                    <div class="section-header">
-                        <h2 class="section-title">Суперсилы</h2>
-                    </div>
-                    <div class="section-body section-body--commands">
-                        <div class="actions">
-                            <div class="actions-card">
-                                <div class="actions-buttons">
-                                    <button
-                                        class="action-btn"
-                                        data-cmd="A"
-                                        type="button"
-                                    >
-                                        A
-                                    </button>
-                                    <button
-                                        class="action-btn"
-                                        data-cmd="B"
-                                        type="button"
-                                    >
-                                        B
-                                    </button>
-                                    <button
-                                        class="action-btn"
-                                        data-cmd="C"
-                                        type="button"
-                                    >
-                                        C
-                                    </button>
+                                    <div class="dpad-row dpad-row--single">
+                                        <button
+                                            class="dpad-btn dpad-btn--down"
+                                            data-cmd="down"
+                                        >
+                                            ▼
+                                        </button>
+                                    </div>-->
                                 </div>
                             </div>
+                        </section>
 
-                            <div class="actions-card">
-                                <div class="actions-buttons">
-                                    <button
-                                        class="action-btn"
-                                        data-cmd="X"
-                                        type="button"
-                                    >
-                                        X
-                                    </button>
-                                    <button
-                                        class="action-btn"
-                                        data-cmd="Y"
-                                        type="button"
-                                    >
-                                        Y
-                                    </button>
-                                    <button
-                                        class="action-btn"
-                                        data-cmd="Z"
-                                        type="button"
-                                    >
-                                        Z
-                                    </button>
-                                </div>
+                        <!-- Команды A B C X Y Z -->
+                        <section class="panel-section panel-section--commands">
+                            <div class="section-header">
+                                <h2 class="section-title">Суперсилы</h2>
                             </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Мощность / скорость -->
-                <section class="panel-section panel-section--power">
-                    <div class="section-header">
-                        <h2 class="section-title">Скорость</h2>
-                    </div>
-                    <div class="section-body section-body--power">
-                        <div class="speed-panel">
-                            <div class="speed-content">
-                                <div class="speed-slider-wrap">
-                                    <div class="speed-scale" aria-hidden="true">
-                                    <div class="speed-tick speed-tick--long">
-                                        <span class="speed-tick-label">255</span>
-                                        <span class="speed-tick-line"></span>
-                                    </div>
-                                    <div class="speed-tick speed-tick--short">
-                                        <span class="speed-tick-line"></span>
-                                    </div>
-                                    <div class="speed-tick speed-tick--short">
-                                        <span class="speed-tick-line"></span>
-                                    </div>
-                                    <div class="speed-tick speed-tick--long">
-                                        <span class="speed-tick-label">128</span>
-                                        <span class="speed-tick-line"></span>
-                                    </div>
-                                    <div class="speed-tick speed-tick--short">
-                                        <span class="speed-tick-line"></span>
-                                    </div>
-                                    <div class="speed-tick speed-tick--short">
-                                        <span class="speed-tick-line"></span>
-                                    </div>
-                                    <div class="speed-tick speed-tick--long">
-                                        <span class="speed-tick-label">0</span>
-                                        <span class="speed-tick-line"></span>
-                                    </div>
+                            <div class="section-body section-body--commands">
+                                <div class="actions">
+                                    <div class="actions-card">
+                                        <div class="actions-buttons">
+                                            <button
+                                                class="action-btn"
+                                                data-cmd="A"
+                                                type="button"
+                                            >
+                                                A
+                                            </button>
+                                            <button
+                                                class="action-btn"
+                                                data-cmd="B"
+                                                type="button"
+                                            >
+                                                B
+                                            </button>
+                                            <button
+                                                class="action-btn"
+                                                data-cmd="C"
+                                                type="button"
+                                            >
+                                                C
+                                            </button>
+                                        </div>
                                     </div>
 
-                                    <div class="speed-track-visual"></div>
-                                    <input
-                                        type="range"
-                                        id="speed-slider"
-                                        min="0"
-                                        max="255"
-                                        value="128"
-                                    />
-                                    <div class="speed-thumb-visual"></div>
-                                    <div
-                                        class="speed-value"
-                                        id="speed-value"
-                                    >
-                                        128
+                                    <div class="actions-card">
+                                        <div class="actions-buttons">
+                                            <button
+                                                class="action-btn"
+                                                data-cmd="X"
+                                                type="button"
+                                            >
+                                                X
+                                            </button>
+                                            <button
+                                                class="action-btn"
+                                                data-cmd="Y"
+                                                type="button"
+                                            >
+                                                Y
+                                            </button>
+                                            <button
+                                                class="action-btn"
+                                                data-cmd="Z"
+                                                type="button"
+                                            >
+                                                Z
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </section>
+
+                        <!-- Мощность / скорость -->
+                        <section class="panel-section panel-section--power">
+                            <div class="section-header">
+                                <h2 class="section-title">Скорость</h2>
+                            </div>
+                            <div class="section-body section-body--power">
+                                <div class="speed-panel">
+                                    <div class="speed-content">
+                                        <div class="speed-slider-wrap">
+                                            <div class="speed-scale" aria-hidden="true">
+                                            <div class="speed-tick speed-tick--long">
+                                                <span class="speed-tick-label">255</span>
+                                                <span class="speed-tick-line"></span>
+                                            </div>
+                                            <div class="speed-tick speed-tick--short">
+                                                <span class="speed-tick-line"></span>
+                                            </div>
+                                            <div class="speed-tick speed-tick--short">
+                                                <span class="speed-tick-line"></span>
+                                            </div>
+                                            <div class="speed-tick speed-tick--long">
+                                                <span class="speed-tick-label">128</span>
+                                                <span class="speed-tick-line"></span>
+                                            </div>
+                                            <div class="speed-tick speed-tick--short">
+                                                <span class="speed-tick-line"></span>
+                                            </div>
+                                            <div class="speed-tick speed-tick--short">
+                                                <span class="speed-tick-line"></span>
+                                            </div>
+                                            <div class="speed-tick speed-tick--long">
+                                                <span class="speed-tick-label">0</span>
+                                                <span class="speed-tick-line"></span>
+                                            </div>
+                                            </div>
+
+                                            <div class="speed-track-visual"></div>
+                                            <input
+                                                type="range"
+                                                id="speed-slider"
+                                                min="0"
+                                                max="255"
+                                                value="128"
+                                            />
+                                            <div class="speed-thumb-visual"></div>
+                                            <div
+                                                class="speed-value"
+                                                id="speed-value"
+                                            >
+                                                128
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
                     </div>
-                </section>
+                </div>
+                <div class="panel-view" data-panel-view="panel-2" id="panel-2">
+                    <div class="panel-grid panel-grid--panel2">
+                        <section class="panel-section panel-section--legs panel-section--panel2">
+                            <div class="section-header">
+                                <h2 class="section-title">Ноги</h2>
+                            </div>
+                            <div class="section-body section-body--movement section-body--legs">
+                                <div class="dpad dpad--grid">
+                                    <div class="dpad-grid">
+                                        <button
+                                            class="dpad-btn dpad-btn--ccw"
+                                            data-cmd="leg-ccw"
+                                            type="button"
+                                        >
+                                            <span class="dpad-icon dpad-icon--ccw">↺</span>
+                                        </button>
+                                        <button
+                                            class="dpad-btn dpad-btn--up"
+                                            data-cmd="leg-up"
+                                            type="button"
+                                        >
+                                            <span class="dpad-icon dpad-icon--up">▲</span>
+                                        </button>
+                                        <button
+                                            class="dpad-btn dpad-btn--cw"
+                                            data-cmd="leg-cw"
+                                            type="button"
+                                        >
+                                            <span class="dpad-icon dpad-icon--cw">↻</span>
+                                        </button>
+                                        <button
+                                            class="dpad-btn dpad-btn--left"
+                                            data-cmd="leg-left"
+                                            type="button"
+                                        >
+                                            <span class="dpad-icon dpad-icon--left">▲</span>
+                                        </button>
+                                        <div class="dpad-spacer" aria-hidden="true"></div>
+                                        <button
+                                            class="dpad-btn dpad-btn--right"
+                                            data-cmd="leg-right"
+                                            type="button"
+                                        >
+                                            <span class="dpad-icon dpad-icon--right">▲</span>
+                                        </button>
+                                        <button
+                                            class="dpad-btn dpad-btn--down-left"
+                                            data-cmd="leg-down-left"
+                                            type="button"
+                                        >
+                                            <span class="dpad-icon dpad-icon--down-left">▲</span>
+                                        </button>
+                                        <button
+                                            class="dpad-btn dpad-btn--down"
+                                            data-cmd="leg-down"
+                                            type="button"
+                                        >
+                                            <span class="dpad-icon dpad-icon--down">▲</span>
+                                        </button>
+                                        <button
+                                            class="dpad-btn dpad-btn--down-right"
+                                            data-cmd="leg-down-right"
+                                            type="button"
+                                        >
+                                            <span class="dpad-icon dpad-icon--down-right">▲</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="panel-section panel-section--claw panel-section--panel2">
+                            <div class="section-header">
+                                <h2 class="section-title">Клешня</h2>
+                            </div>
+                            <div class="section-body section-body--claw">
+                                <div class="panel2-card panel2-card--vertical">
+                                    <button
+                                        class="panel2-btn panel2-btn--vertical"
+                                        data-cmd="claw-open"
+                                        type="button"
+                                    >
+                                        открыть
+                                    </button>
+                                    <button
+                                        class="panel2-btn panel2-btn--vertical"
+                                        data-cmd="claw-close"
+                                        type="button"
+                                    >
+                                        закрыть
+                                    </button>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="panel-section panel-section--arms panel-section--panel2">
+                            <div class="section-header">
+                                <h2 class="section-title">Руки</h2>
+                            </div>
+                            <div class="section-body section-body--arms">
+                                <div class="panel2-card panel2-card--horizontal">
+                                    <button
+                                        class="panel2-btn panel2-btn--horizontal"
+                                        data-cmd="arm-up"
+                                        type="button"
+                                    >
+                                        поднять
+                                    </button>
+                                    <button
+                                        class="panel2-btn panel2-btn--horizontal"
+                                        data-cmd="arm-down"
+                                        type="button"
+                                    >
+                                        опустить
+                                    </button>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
             </div>
 
             <!-- Низ панели: лог последнего события -->
