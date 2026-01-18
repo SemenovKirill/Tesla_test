@@ -28,6 +28,50 @@ const PANEL2_COMMAND_MAP = {
   "arm-up": "y",
   "arm-down": "z",
 };
+const PANEL1_KEY_CODE_MAP = {
+  ArrowUp: { type: "drive", cmd: "up" },
+  ArrowDown: { type: "drive", cmd: "down" },
+  ArrowLeft: { type: "drive", cmd: "left" },
+  ArrowRight: { type: "drive", cmd: "right" },
+  KeyA: { type: "send", cmd: "A" },
+  KeyB: { type: "send", cmd: "B" },
+  KeyC: { type: "send", cmd: "C" },
+  KeyX: { type: "send", cmd: "X" },
+  KeyY: { type: "send", cmd: "Y" },
+  KeyZ: { type: "send", cmd: "Z" },
+};
+const PANEL1_KEY_MAP = {
+  arrowup: { type: "drive", cmd: "up" },
+  arrowdown: { type: "drive", cmd: "down" },
+  arrowleft: { type: "drive", cmd: "left" },
+  arrowright: { type: "drive", cmd: "right" },
+  a: { type: "send", cmd: "A" },
+  b: { type: "send", cmd: "B" },
+  c: { type: "send", cmd: "C" },
+  x: { type: "send", cmd: "X" },
+  y: { type: "send", cmd: "Y" },
+  z: { type: "send", cmd: "Z" },
+  "ф": { type: "send", cmd: "A" },
+  "и": { type: "send", cmd: "B" },
+  "с": { type: "send", cmd: "C" },
+  "ч": { type: "send", cmd: "X" },
+  "н": { type: "send", cmd: "Y" },
+  "я": { type: "send", cmd: "Z" },
+};
+const PANEL2_KEY_CODE_MAP = {
+  KeyQ: "leg-ccw",
+  KeyW: "leg-up",
+  KeyE: "leg-cw",
+  KeyD: "leg-right",
+  KeyC: "leg-down-right",
+  KeyS: "leg-down",
+  KeyZ: "leg-down-left",
+  KeyA: "leg-left",
+  ArrowLeft: "claw-open",
+  ArrowRight: "claw-close",
+  ArrowUp: "arm-up",
+  ArrowDown: "arm-down",
+};
 const PANEL2_KEY_MAP = {
   q: "leg-ccw",
   w: "leg-up",
@@ -37,6 +81,14 @@ const PANEL2_KEY_MAP = {
   s: "leg-down",
   z: "leg-down-left",
   a: "leg-left",
+  "й": "leg-ccw",
+  "ц": "leg-up",
+  "у": "leg-cw",
+  "в": "leg-right",
+  "с": "leg-down-right",
+  "ы": "leg-down",
+  "я": "leg-down-left",
+  "ф": "leg-left",
   arrowleft: "claw-open",
   arrowright: "claw-close",
   arrowup: "arm-up",
@@ -73,6 +125,9 @@ const activeHolds = {
 const logModal = document.getElementById("log-modal");
 const logModalClose = document.getElementById("log-modal-close");
 const logModalList = document.getElementById("log-modal-list");
+const connectWarningModal = document.getElementById("connect-warning-modal");
+const connectWarningClose = document.getElementById("connect-warning-close");
+const connectWarningOk = document.getElementById("connect-warning-ok");
 const logHistory = [];
 const installBanner = document.getElementById("install-banner");
 const installConfirmBtn = document.getElementById("install-confirm");
@@ -276,7 +331,9 @@ function send(data, options = {}) {
   const { appendNewline = true } = options;
   data = String(data);
 
-  if (!data || !characteristicCache) {
+  if (!data) return;
+  if (!isBluetoothConnected()) {
+    warnNotConnected();
     return;
   }
 
@@ -303,6 +360,32 @@ function writeToCharacteristic(characteristic, data) {
   characteristic.writeValue(new TextEncoder().encode(data));
 }
 
+function isBluetoothConnected() {
+  return (
+    deviceCache &&
+    deviceCache.gatt &&
+    deviceCache.gatt.connected &&
+    characteristicCache
+  );
+}
+
+function warnNotConnected() {
+  log("Сначала подключитесь к устройству");
+  openConnectWarning();
+}
+
+function openConnectWarning() {
+  if (!connectWarningModal) return;
+  connectWarningModal.classList.add("is-open");
+  connectWarningModal.setAttribute("aria-hidden", "false");
+}
+
+function closeConnectWarning() {
+  if (!connectWarningModal) return;
+  connectWarningModal.classList.remove("is-open");
+  connectWarningModal.setAttribute("aria-hidden", "true");
+}
+
 function buildPanel2Command(cmd) {
   if (!cmd) return "";
   return PANEL2_COMMAND_MAP[String(cmd)] || "";
@@ -312,6 +395,7 @@ function sendPanel2(data) {
   const payload = buildPanel2Command(data);
   if (!payload) return;
   send(payload, { appendNewline: true });
+  send("s", { appendNewline: true });
 }
 
 /* -----------------------------
@@ -540,47 +624,25 @@ if (bigConnectBtn) {
    ----------------------------- */
 
 function handleKeyDownPanel1(event) {
-  const key = event.key.toLowerCase();
-
-  switch (key) {
-    case "arrowup":
-      sendDrive("up");
-      break;
-    case "arrowdown":
-      sendDrive("down");
-      break;
-    case "arrowleft":
-      sendDrive("left");
-      break;
-    case "arrowright":
-      sendDrive("right");
-      break;
-
-    case "a":
-      send("A");
-      break;
-    case "b":
-      send("B");
-      break;
-    case "c":
-      send("C");
-      break;
-    case "x":
-      send("X");
-      break;
-    case "y":
-      send("Y");
-      break;
-    case "z":
-      send("Z");
-      break;
+  const code = event.code;
+  const action =
+    (code && PANEL1_KEY_CODE_MAP[code]) ||
+    PANEL1_KEY_MAP[event.key?.toLowerCase()] ||
+    null;
+  if (!action) return;
+  if (action.type === "drive") {
+    sendDrive(action.cmd);
+    return;
   }
+  send(action.cmd);
 }
 
 function handleKeyDownPanel2(event) {
-  const key = event.key.toLowerCase();
-  if (!key) return;
-  const cmd = PANEL2_KEY_MAP[key];
+  const code = event.code;
+  const cmd =
+    (code && PANEL2_KEY_CODE_MAP[code]) ||
+    PANEL2_KEY_MAP[event.key?.toLowerCase()] ||
+    "";
   if (!cmd) return;
   if (isDirectionPanel2(cmd)) {
     sendDrivePanel2(cmd);
@@ -748,6 +810,22 @@ if (logModal) {
   logModal.addEventListener("click", (event) => {
     if (event.target === logModal) {
       closeLogModal();
+    }
+  });
+}
+
+if (connectWarningClose) {
+  connectWarningClose.addEventListener("click", closeConnectWarning);
+}
+
+if (connectWarningOk) {
+  connectWarningOk.addEventListener("click", closeConnectWarning);
+}
+
+if (connectWarningModal) {
+  connectWarningModal.addEventListener("click", (event) => {
+    if (event.target === connectWarningModal) {
+      closeConnectWarning();
     }
   });
 }

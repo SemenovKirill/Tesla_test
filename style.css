@@ -1099,6 +1099,118 @@ body.layout-landscape {
     word-break: break-word;
 }
 
+/* ----- Модалка предупреждения о подключении ----- */
+
+.warning-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(11, 5, 14, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 1100;
+    backdrop-filter: blur(3px);
+}
+
+.warning-modal-overlay.is-open {
+    display: flex;
+}
+
+.warning-modal {
+    width: min(520px, 100%);
+    background: #ffffff;
+    border-radius: 18px;
+    box-shadow:
+        0 16px 36px rgba(0, 0, 0, 0.28),
+        0 0 0 1px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.warning-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: calc(var(--section-header-padding) * var(--space-scale))
+        calc(14px * var(--space-scale));
+    background: linear-gradient(
+        135deg,
+        var(--tesla-purple-dark) 0%,
+        var(--tesla-purple) 100%
+    );
+    color: #ffffff;
+}
+
+.warning-modal-title {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.warning-modal-close {
+    border: none;
+    background: transparent;
+    color: #ffffff;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 8px;
+    transition: background 0.12s ease;
+}
+
+.warning-modal-close:hover {
+    background: rgba(255, 255, 255, 0.18);
+}
+
+.warning-modal-body {
+    padding: 18px 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.warning-modal-text {
+    font-size: 15px;
+    font-weight: 600;
+    color: rgba(26, 26, 24, 0.85);
+    line-height: 1.4;
+}
+
+.warning-modal-action {
+    border: none;
+    border-radius: 999px;
+    padding: 12px 20px;
+    background: linear-gradient(
+        135deg,
+        var(--tesla-purple) 0%,
+        var(--tesla-pink) 100%
+    );
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    align-self: flex-start;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+    transition:
+        transform 0.08s ease,
+        box-shadow 0.12s ease;
+}
+
+.warning-modal-action:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25);
+}
+
+.warning-modal-action:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.18);
+}
+
 /* ----- Баннер установки PWA ----- */
 
 .install-banner {

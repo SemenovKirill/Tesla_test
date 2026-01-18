@@ -410,6 +410,47 @@
             </div>
         </div>
     </div>
+
+    <!-- Модалка предупреждения о подключении -->
+    <div
+        class="warning-modal-overlay"
+        id="connect-warning-modal"
+        aria-hidden="true"
+    >
+        <div
+            class="warning-modal"
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="connect-warning-title"
+            aria-describedby="connect-warning-text"
+        >
+            <div class="warning-modal-header">
+                <div class="warning-modal-title" id="connect-warning-title">
+                    Нет подключения
+                </div>
+                <button
+                    class="warning-modal-close"
+                    id="connect-warning-close"
+                    type="button"
+                    aria-label="Закрыть"
+                >
+                    ✕
+                </button>
+            </div>
+            <div class="warning-modal-body">
+                <div class="warning-modal-text" id="connect-warning-text">
+                    Сначала подключитесь к устройству по Bluetooth.
+                </div>
+                <button
+                    class="warning-modal-action"
+                    id="connect-warning-ok"
+                    type="button"
+                >
+                    Понятно
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Баннер установки PWA -->
