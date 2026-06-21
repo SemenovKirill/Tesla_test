@@ -14,10 +14,10 @@
   <DisplayName DefaultValue="Кружочки занятия"/>
   <Description DefaultValue="Расстановка индикаторных кружочков на титуле и разделителе этапа."/>
 
-  <IconUrl DefaultValue="https://semenovkirill.github.io/tesla_lessons/addin/assets/icon-64.png"/>
-  <HighResolutionIconUrl DefaultValue="https://semenovkirill.github.io/tesla_lessons/addin/assets/icon-128.png"/>
+  <IconUrl DefaultValue="https://semenovkirill.github.io/Tesla_test/docs/addin/assets/icon-64.png"/>
+  <HighResolutionIconUrl DefaultValue="https://semenovkirill.github.io/Tesla_test/docs/addin/assets/icon-128.png"/>
 
-  <SupportUrl DefaultValue="https://github.com/SemenovKirill/tesla_lessons"/>
+  <SupportUrl DefaultValue="https://github.com/SemenovKirill/Tesla_test"/>
 
   <AppDomains>
     <AppDomain>https://semenovkirill.github.io</AppDomain>
@@ -34,7 +34,7 @@
   </Requirements>
 
   <DefaultSettings>
-    <SourceLocation DefaultValue="https://semenovkirill.github.io/tesla_lessons/addin/taskpane.html"/>
+    <SourceLocation DefaultValue="https://semenovkirill.github.io/Tesla_test/docs/addin/taskpane.html"/>
   </DefaultSettings>
 
   <Permissions>ReadWriteDocument</Permissions>
@@ -82,13 +82,13 @@
 
     <Resources>
       <bt:Images>
-        <bt:Image id="Icon.16x16" DefaultValue="https://semenovkirill.github.io/tesla_lessons/addin/assets/icon-16.png"/>
-        <bt:Image id="Icon.32x32" DefaultValue="https://semenovkirill.github.io/tesla_lessons/addin/assets/icon-32.png"/>
-        <bt:Image id="Icon.80x80" DefaultValue="https://semenovkirill.github.io/tesla_lessons/addin/assets/icon-80.png"/>
+        <bt:Image id="Icon.16x16" DefaultValue="https://semenovkirill.github.io/Tesla_test/docs/addin/assets/icon-16.png"/>
+        <bt:Image id="Icon.32x32" DefaultValue="https://semenovkirill.github.io/Tesla_test/docs/addin/assets/icon-32.png"/>
+        <bt:Image id="Icon.80x80" DefaultValue="https://semenovkirill.github.io/Tesla_test/docs/addin/assets/icon-80.png"/>
       </bt:Images>
       <bt:Urls>
-        <bt:Url id="GetStarted.LearnMoreUrl" DefaultValue="https://github.com/SemenovKirill/tesla_lessons"/>
-        <bt:Url id="Taskpane.Url" DefaultValue="https://semenovkirill.github.io/tesla_lessons/addin/taskpane.html"/>
+        <bt:Url id="GetStarted.LearnMoreUrl" DefaultValue="https://github.com/SemenovKirill/Tesla_test"/>
+        <bt:Url id="Taskpane.Url" DefaultValue="https://semenovkirill.github.io/Tesla_test/docs/addin/taskpane.html"/>
       </bt:Urls>
       <bt:ShortStrings>
         <bt:String id="GetStarted.Title" DefaultValue="Кружочки занятия"/>

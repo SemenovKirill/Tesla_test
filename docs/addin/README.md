@@ -15,22 +15,16 @@
 
 ## Установка (один раз)
 
-### Шаг 1. Включить GitHub Pages
+### Шаг 1. GitHub Pages
 
-Один раз на репозиторий:
-
-1. Зайди в репозиторий `tesla_lessons` на GitHub.
-2. **Settings → Pages**.
-3. Source: `Deploy from a branch`.
-4. Branch: `main`, Folder: `/docs`.
-5. Save. Через ~1 минуту GitHub скажет, что страница доступна по адресу `https://semenovkirill.github.io/tesla_lessons/`.
+Уже включён для репозитория `Tesla_test` (Source: branch `main`, корень). Файлы add-in доступны по адресу `https://semenovkirill.github.io/Tesla_test/docs/addin/`.
 
 ### Шаг 2. Sideload manifest.xml в PowerPoint
 
 На каждой машине, где нужен add-in (твоя + сотрудника):
 
 **macOS:**
-1. Скачай `manifest.xml` с GitHub (или возьми из `tesla_lessons/docs/addin/manifest.xml` локально).
+1. Возьми `manifest.xml` из `Tesla_test/docs/addin/manifest.xml` локально (или скачай с GitHub).
 2. Открой PowerPoint.
 3. **Insert → My Add-ins → Manage My Add-ins** (или **Get Add-ins → Upload My Add-in** в новых версиях).
 4. Выбери `manifest.xml`.
