@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Кружочки занятия</title>
+  <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+  <link rel="stylesheet" href="taskpane.css">
+</head>
+<body>
+  <main class="container">
+    <h1>Расстановка кружочков</h1>
+    <p class="hint">Создай слайд из нужного layout, открой панель и нажми «Применить».</p>
+
+    <fieldset class="group">
+      <legend>Тип слайда</legend>
+      <label class="radio">
+        <input type="radio" name="type" value="title" checked>
+        <span>Титул</span>
+      </label>
+      <label class="radio">
+        <input type="radio" name="type" value="etap">
+        <span>Разделитель этапа</span>
+      </label>
+    </fieldset>
+
+    <div class="row">
+      <label>
+        <span>Всего точек</span>
+        <input type="number" id="total" min="1" max="60" value="14" inputmode="numeric">
+      </label>
+      <label>
+        <span>Активная</span>
+        <input type="number" id="active" min="1" max="60" value="1" inputmode="numeric">
+      </label>
+    </div>
+
+    <button id="apply" class="primary">Применить</button>
+
+    <div id="status" class="status"></div>
+  </main>
+
+  <script src="taskpane.js"></script>
+</body>
+</html>
